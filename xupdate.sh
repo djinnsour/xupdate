@@ -443,14 +443,18 @@ su $XUSER pipelight-plugin -y --create-mozilla-plugins
 wget https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
 install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM"
 
-# Franz
+# FRANZ
 echo -e "${GR}  Franz...${NC}"
+# get latest version
+wget -q https://github.com/meetfranz/franz-app/releases/latest
 mkdir -p /opt/franz
 if [ "$ARCH" == "64" ]; then
-  wget -qO- https://github.com/meetfranz/franz-app/releases/download/4.0.4/Franz-linux-x64-4.0.4.tgz | tar zxf - -C /opt/franz/
+  FRZ64=`cat latest | grep Franz-linux-x64 | grep meetfranz | cut -f2 -d '"'`
+  wget -qO- https://github.com$FRZ64 | tar zxf - -C /opt/franz/
 fi
 if [ "$ARCH" == "32" ]; then
-  wget -qO- https://github.com/meetfranz/franz-app/releases/download/4.0.4/Franz-linux-ia32-4.0.4.tgz | tar zxf - -C /opt/franz/
+  FRZ32=`cat latest | grep Franz-linux-ia32 | grep meetfranz | cut -f2 -d '"'`
+  wget -qO- https://github.com/meetfranz$FRZ32 | tar zxf - -C /opt/franz/
 fi
 wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
 cat <<EOF > /usr/share/applications/franz.desktop                                                                 
@@ -464,7 +468,7 @@ Type=Application
 Categories=Messaging,Internet
 EOF
 
-# French TV online viewer (only works in France)
+# MOLOTOV French TV online viewer (only works in France)
 # It is impossible to obtain the latest version number
 # so it has to be manually added here. Grrr...
 if [ "$FR" == "1" ]; then
