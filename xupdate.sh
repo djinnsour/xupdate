@@ -503,9 +503,7 @@ if [ ! "$ERRORS" == "1" ]; then
 fi
 
 echo -e "${GR}######## FINISHED ########${NC}"
-echo -e "${GR}INSTALL THE PROPRIETARY DRIVERS YOU NEED WITH apt-get install XXXX${NC}"
-echo -e "${GR}AND REBOOT...${NC}"
-ubuntu-drivers devices
+
 
 
 
