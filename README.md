@@ -12,7 +12,15 @@ make the script executable with: chmod +x xupdate.sh
 
 then run sudo ./xupdate.sh
 
-# CHANGELOG since 0.2
+# CHANGELOG (newest first)
+
+version 0.4
+
+added latest version detection for Franz and Grammalecte
+
+Fixed chrome installation - machine detection moved higher
+
+version 0.3
 
 added xpi functions and firefox ublock origin plugin installation
 
@@ -22,3 +30,6 @@ better grammalecte installation - detect latest version by parsing download page
 
 various bug fixes
 
+version 0.2 = stabilized version
+
+version 0.1 = nearly there
