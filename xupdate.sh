@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# version 0.2
-# 5 January 2017 - Philip Wittamore
+# version 0.3
+# 6 January 2017 - Philip Wittamore
 
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04
 # The target is to create a "lazy users" Xubuntu installation
@@ -10,6 +10,11 @@
 # cd to the folder that contains this script (xupdate.sh)
 # make the script executable with: chmod 777 xupdate.sh
 # then run sudo ./xupdate.sh
+
+# CHANGELOG since 0.2
+# added xpi functions and firefox ublock origin plugin installation
+# corrected xconf-query autorun command (added create if doesn't exist)
+# bug fixes
 
 # =============================================================
 # Make sure only root can run our script
@@ -33,6 +38,10 @@ fi
 # =============================================================
 # START
 
+# FIND USER AND GROUP THAT RAN su or sudo su
+XUSER=`logname`
+XGROUP=`id -ng $XUSER`
+
 # shut up installers
 export DEBIAN_FRONTEND=noninteractive
 
@@ -45,11 +54,42 @@ echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 # ERROR LOGGING SETUP
 echo 'Errors' > xupdate_error.log
 
-function xinstall {
+xinstall () {
   apt install -q -y $1 > /dev/null 2>> xupdate_error.log
 }
-function xremove {
+xremove () {
   apt purge -q -y $1 > /dev/null 2>> xupdate_error.log
+}
+
+# xpi functions for installing firefox extensions
+
+EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
+EXTENSIONS_USER=`echo /home/$XUSER/.mozilla/firefox/*.default/extensions/`
+
+get_addon_id_from_xpi () { #path to .xpi file
+    addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
+    addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+    echo "$addon_id"
+}
+
+get_addon_name_from_xpi () { #path to .xpi file
+    addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
+    addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+    echo "$addon_name"
+}
+
+install_addon () {
+    xpi="${PWD}/${1}"
+    extensions_path=$2
+    new_filename=`get_addon_id_from_xpi $xpi`.xpi
+    new_filepath="${extensions_path}${new_filename}"
+    addon_name=`get_addon_name_from_xpi $xpi`
+    if [ -f "$new_filepath" ]; then
+        echo "File already exists: $new_filepath"
+        echo "Skipping installation for addon $addon_name."
+    else
+        cp "$xpi" "$new_filepath"
+    fi
 }
 
 # =============================================================
@@ -93,12 +133,8 @@ apt-get dist-upgrade -q -y > /dev/null 2>> xupdate_error.log
 echo -e "${GR}Setting up system...${NC}"
 
 # GET IP AND IS COUNTRY FRANCE
-IP=`curl -s checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
+IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
 FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
-
-# FIND USER AND GROUP THAT RAN su or sudo su
-XUSER=`logname`
-XGROUP=`id -ng $XUSER`
 
 # GET ARCHITECTURE
 MACHINE_TYPE=`uname -m`
@@ -140,13 +176,12 @@ sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
 
 # Memory management
 if [ "$SSD" == "0" ]; then
-  SWFILE='/etc/sysctl.d/99-swappiness.conf'
-  echo "vm.swappiness=1" > $SWFILE
+  echo "vm.swappiness=1" > /etc/sysctl.d/99-swappiness.conf
 else
-  echo "vm.swappiness=10" > $SWFILE
+  echo "vm.swappiness=10" > /etc/sysctl.d/99-swappiness.conf
 fi
-echo "vm.vfs_cache_pressure=50" >> $SWFILE
-sysctl -p $SWFILE
+echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-swappiness.conf
+sysctl -p /etc/sysctl.d/99-swappiness.conf
 
 # Enable unattended security upgrades
 echo 'Unattended-Upgrade::Remove-Unused-Dependencies "true";' >> /etc/apt/apt.conf.d/50unattended-upgrades
@@ -190,15 +225,13 @@ echo "gtk-timeout-repeat = 0" >> /home/$XUSER/.gtkrc-2.0
 # FILE DEFAULTS
 # overrides rhythmbox parole
 # audio
-sed -i -e "s/totem.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 sed -i -e "s/rhythmbox.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 sed -i -e "s/parole.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 
 # MEDIA INSERT
 # auto run inserted DVD's and CD's with VLC instead of the defaults
-xfconf-query -c thunar-volman -p /autoplay-audio-cds/command -s "vlc cdda:///dev/sr0"
-xfconf-query -c thunar-volman -p /autoplay-video-cds/command -s "vlc dvd:///dev/sr0"
-
+xfconf-query -c thunar-volman -p /autoplay-audio-cds/command -n -t string -s "vlc cdda:///dev/sr0"
+xfconf-query -c thunar-volman -p /autoplay-video-cds/command -n -t string -s "vlc dvd:///dev/sr0"
 # Set the default QT style
 echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 
@@ -210,14 +243,14 @@ echo -e "${GR}  Base...${NC}"
 # Due to a bug in ttf-mscorefonts-installer, this package must be downloaded from Debian 
 # and installed before the rest of the packages:
 xinstall cabextract
-wget http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb
+wget -q http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb
 dpkg -i ttf-mscorefonts-installer_3.6_all.deb
 
 xinstall xubuntu-restricted-extras
 ubuntu-drivers autoinstall
 
-# libdvdcss - messy output
-echo -e "${GR}Libdvdcss...${NC}"
+# libdvdcss
+echo -e "${GR}  Libdvdcss...${NC}"
 xinstall libdvd-pkg
 dpkg-reconfigure libdvd-pkg > /dev/null 2>> xupdate_error.log
 
@@ -333,11 +366,11 @@ xinstall libreoffice-pdfimport
 xinstall libreoffice-nlpsolver
 
 if [ "$LANGUAGE" == "fr_FR" ]; then
-  wget http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr-v0.5.14.oxt
+  wget -q http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr-v0.5.14.oxt
   unopkg add --shared Grammalecte-fr-v0.5.14.oxt
 fi
 if [ "$LANGUAGE" == "en_GB" ]; then
-  wget http://extensions.libreoffice.org/extension-center/american-british-canadian-spelling-hyphen-thesaurus-dictionaries/releases/3.0/kpp-british-english-dictionary-674039-word-list.oxt
+  wget -q http://extensions.libreoffice.org/extension-center/american-british-canadian-spelling-hyphen-thesaurus-dictionaries/releases/3.0/kpp-british-english-dictionary-674039-word-list.oxt
   unopkg add --shared kpp-british-english-dictionary-674039-word-list.oxt
   xinstall myspell-en-gb 
 fi
@@ -407,16 +440,25 @@ echo -e "${GR}  Pipelight...${NC}"
 xinstall pipelight-multi 
 pipelight-plugin --update
 mv $XUSER/.mozilla/firefox/*.default/pluginreg.dat $XUSER/.mozilla/firefox/old_pluginreg.dat
-pipelight-plugin --create-mozilla-plugins
 chmod 777 /usr/lib/pipelight/
 chmod 666 /usr/lib/pipelight/*
 pipelight-plugin --enable silverlight
+pipelight-plugin --create-mozilla-plugins
+
+# Add Ublock Origin plugin to Firefox
+wget https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
+install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM"
 
 # Franz
 echo -e "${GR}  Franz...${NC}"
 mkdir -p /opt/franz
-wget -qO- https://github.com/meetfranz/franz-app/releases/download/4.0.4/Franz-linux-x64-4.0.4.tgz | tar zxf -C /opt/franz/
-wget  https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
+if [ "$ARCH" == "64" ]; then
+  wget -qO- https://github.com/meetfranz/franz-app/releases/download/4.0.4/Franz-linux-x64-4.0.4.tgz | tar zxf - -C /opt/franz/
+fi
+if [ "$ARCH" == "32" ]; then
+  wget -qO- https://github.com/meetfranz/franz-app/releases/download/4.0.4/Franz-linux-ia32-4.0.4.tgz | tar zxf - -C /opt/franz/
+fi
+wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
 cat <<EOF > /usr/share/applications/franz.desktop                                                                 
 [Desktop Entry]
 Name=Franz
@@ -450,20 +492,19 @@ echo -e "${GR}Cleaning up...${NC}"
 apt-get install -f -y > /dev/null
 apt-get autoremove > /dev/null
 apt-get clean > /dev/null
-update-grub
+update-grub > /dev/null
 
 # safely correct permissions because we are working as root
 chown -R $XUSER:$XGROUP /home/$XUSER
 
 ERRORS=`wc -l < xupdate_error.log`
-if [ ! "$ERRORS" == "1" ]
-  echo -e "${RD}$ERRORS error(s) found, check xupdate_error.log${NC}"
-  echo ' '
-else
-  echo -e "${GR}No errors logged.${NC}"
+if [ ! "$ERRORS" == "1" ]; then
+  echo -e "${RD}$ERRORS lines in xupdate_error.log${NC}"
 fi
 
 echo -e "${GR}######## FINISHED ########${NC}"
+echo -e "${GR}Launching Firefox for plugin installation${NC}"
+/usr/bin/firefox -setDefaultBrowser > /dev/null
 echo -e "${GR}INSTALL THE PROPRIETARY DRIVERS YOU NEED WITH apt-get install XXXX${NC}"
 echo -e "${GR}AND REBOOT...${NC}"
 ubuntu-drivers devices
