@@ -483,7 +483,7 @@ fi
 
 # update system icon cache
 echo -e "${GR}  Update icon cache...${NC}"
-for d in /usr/share/icons/*; do sudo gtk-update-icon-cache -f $d; done
+for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d 2>> /dev/null; done
 
 # =============================================================
 # FINISH
