@@ -37,6 +37,14 @@ fi
 XUSER=`logname`
 XGROUP=`id -ng $XUSER`
 
+# GET ARCHITECTURE
+MACHINE_TYPE=`uname -m`
+if [ "$MACHINE_TYPE" == "x86_64" ]; then
+  ARCH="64"
+else
+  ARCH="32"
+fi
+
 # shut up installers
 export DEBIAN_FRONTEND=noninteractive
 
@@ -105,7 +113,7 @@ add-apt-repository ppa:libreoffice/ppa -y > /dev/null 2>> xupdate_error.log
 # Google Chrome (not supported on 32bit)
 if [ "$ARCH" == "64" ]; then
   wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-  echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+  echo "deb https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 fi
 
 # =============================================================
@@ -131,14 +139,6 @@ echo -e "${GR}Setting up system...${NC}"
 # GET IP AND IS COUNTRY FRANCE
 IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
 FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
-
-# GET ARCHITECTURE
-MACHINE_TYPE=`uname -m`
-if [ "$MACHINE_TYPE" == "x86_64" ]; then
-  ARCH="64"
-else
-  ARCH="32"
-fi
 
 # PRELOAD 
 # not for low memory systems, arbitrarily set to 2Gb
