@@ -147,8 +147,6 @@ if (($MEM > 2097152)); then
   xinstall preload
 fi
 
-LAPTOP=`laptop-detect; echo -e  $?`
-
 # IF SSD
 SSD=`cat /sys/block/sda/queue/rotational`
 if [ "$SSD" == "0" ]; then
@@ -185,6 +183,7 @@ sed -i '/^\/\/.*-updates.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrad
 sed -i '/^\/\/.*-backports.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrades
 
 # Manage Laptop battery & overheating 
+LAPTOP=`laptop-detect; echo -e  $?`
 if [ "$LAPTOP" == "0" ]; then
   xinstall tlp 
   xinstall tlp-rdw 
