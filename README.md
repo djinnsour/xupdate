@@ -18,7 +18,7 @@ then run sudo ./xupdate.sh
 
 version 0.4
 
-added latest version detection for Franz and Grammalecte
+better latest version detection for Franz and Grammalecte
 
 Fixed chrome installation - machine detection moved higher
 
