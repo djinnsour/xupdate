@@ -466,15 +466,21 @@ Categories=Messaging,Internet
 EOF
 
 # French TV online viewer (only works in France)
+# It is impossible to obtain the latest version number
+# so it has to be manually added here. Grrr...
 if [ "$FR" == "1" ]; then
   echo -e "${GR}  Molotov...${NC}"
+  # name of latest version
+  MFILE='Molotov-1.1.2.AppImage'
   mkdir -p /opt/molotov
   xinstall libatk-adaptor 
   xinstall libgail-common 
-  wget -P /opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/Molotov-1.1.2.AppImage
-  chmod +x /opt/molotov/*
-  # launch it to install desktop entry
-  su $XUSER /opt/molotov/Molotov-1.1.2.AppImage &
+  wget -P /opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/$MFILE
+  if [ -f "/opt/molotov/$MFILE" ]; then
+    chmod +x /opt/molotov/$MFILE
+    # launch to install desktop entry
+    su $XUSER /opt/molotov/$MFILE &
+  fi
 fi
 
 # update system icon cache
