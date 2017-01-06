@@ -18,5 +18,7 @@ added xpi functions and firefox ublock origin plugin installation
 
 corrected xconf-query autorun command (added create if doesn't exist)
 
+better grammalecte installation - detect latest version by parsing download page
+
 various bug fixes
 
