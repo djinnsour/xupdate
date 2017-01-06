@@ -1,7 +1,9 @@
 # xupdate
 
 A post fresh installation script for Xubuntu
+
 The target is to create a "lazy users" Xubuntu installation
+
 CREDITS: Internet
 
 cd to the folder that contains this script (xupdate.sh)
