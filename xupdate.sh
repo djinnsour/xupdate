@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# version 0.3
+# version 0.3.1
 # 6 January 2017 - Philip Wittamore
 
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04
@@ -10,11 +10,6 @@
 # cd to the folder that contains this script (xupdate.sh)
 # make the script executable with: chmod 777 xupdate.sh
 # then run sudo ./xupdate.sh
-
-# CHANGELOG since 0.2
-# added xpi functions and firefox ublock origin plugin installation
-# corrected xconf-query autorun command (added create if doesn't exist)
-# bug fixes
 
 # =============================================================
 # Make sure only root can run our script
@@ -265,7 +260,8 @@ xinstall lsb-core
 xinstall joe 
 xinstall mc 
 xinstall curl 
-xinstall gparted 
+xinstall gparted
+xinstall ppa-purge 
 xinstall synaptic 
 xinstall gdebi 
 xinstall gksu 
@@ -285,7 +281,7 @@ xinstall unace
 xinstall rar 
 xinstall unrar 
 xinstall p7zip-rar 
-xinstall p7zip  
+xinstall p7zip-full  
 xinstall sharutils 
 xinstall uudeview 
 xinstall mpack 
@@ -367,13 +363,13 @@ xinstall libreoffice-pdfimport
 xinstall libreoffice-nlpsolver
 
 if [ "$LANGUAGE" == "fr_FR" ]; then
-  wget -q http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr-v0.5.14.oxt
-  unopkg add --shared Grammalecte-fr-v0.5.14.oxt
-fi
-if [ "$LANGUAGE" == "en_GB" ]; then
-  wget -q http://extensions.libreoffice.org/extension-center/american-british-canadian-spelling-hyphen-thesaurus-dictionaries/releases/3.0/kpp-british-english-dictionary-674039-word-list.oxt
-  unopkg add --shared kpp-british-english-dictionary-674039-word-list.oxt
-  xinstall myspell-en-gb 
+  # get the latest version by parsing the download page
+  wget -q http://www.dicollecte.org/grammalecte/telecharger.php
+  GOXT=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
+  if [ -f "*.oxt" ]; then
+    wget -q $GOXT
+    unopkg add --shared -f Grammalecte-fr-*.oxt
+  fi
 fi
 
 # =============================================================
