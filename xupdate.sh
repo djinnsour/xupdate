@@ -432,18 +432,16 @@ mkdir -p /etc/hal/fdi/policy
 echo -e "${GR}  Wine...${NC}"
 xinstall wine-staging 
 xinstall wine-staging-compat 
-xinstall winetricks
 adduser $XUSER wine
 
 # Enable silverlight plugin in firefox
 echo -e "${GR}  Pipelight...${NC}"
 xinstall pipelight-multi 
-pipelight-plugin --update
-mv $XUSER/.mozilla/firefox/*.default/pluginreg.dat $XUSER/.mozilla/firefox/old_pluginreg.dat
 chmod 777 /usr/lib/pipelight/
 chmod 666 /usr/lib/pipelight/*
-pipelight-plugin --enable silverlight
-pipelight-plugin --create-mozilla-plugins
+su $XUSER pipelight-plugin --update
+su $XUSER pipelight-plugin --enable silverlight
+su $XUSER pipelight-plugin --create-mozilla-plugins
 
 # Add Ublock Origin plugin to Firefox
 wget https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
@@ -478,6 +476,8 @@ if [ "$FR" == "1" ]; then
   xinstall libgail-common 
   wget -P /opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/Molotov-1.1.2.AppImage
   chmod +x /opt/molotov/*
+  # launch it to install desktop entry
+  su $XUSER /opt/molotov/Molotov-1.1.2.AppImage &
 fi
 
 # update system icon cache
@@ -503,8 +503,6 @@ if [ ! "$ERRORS" == "1" ]; then
 fi
 
 echo -e "${GR}######## FINISHED ########${NC}"
-echo -e "${GR}Launching Firefox for plugin installation${NC}"
-/usr/bin/firefox -setDefaultBrowser > /dev/null
 echo -e "${GR}INSTALL THE PROPRIETARY DRIVERS YOU NEED WITH apt-get install XXXX${NC}"
 echo -e "${GR}AND REBOOT...${NC}"
 ubuntu-drivers devices
