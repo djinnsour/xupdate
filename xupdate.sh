@@ -435,9 +435,9 @@ echo -e "${GR}  Pipelight...${NC}"
 xinstall pipelight-multi 
 chmod 777 /usr/lib/pipelight/
 chmod 666 /usr/lib/pipelight/*
-su $XUSER pipelight-plugin --update -y
-su $XUSER pipelight-plugin --enable silverlight -y
-su $XUSER pipelight-plugin --create-mozilla-plugins -y
+pipelight-plugin --update -y
+su $XUSER pipelight-plugin -y --enable silverlight
+su $XUSER pipelight-plugin -y --create-mozilla-plugins
 
 # Add Ublock Origin plugin to Firefox
 wget https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
