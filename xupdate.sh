@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# version 0.3.1
-# 6 January 2017 - Philip Wittamore
-
+# Philip Wittamore - www.wittamore.com
+#
+# xupdate.sh version 0.4
+#
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04
 # The target is to create a "lazy users" Xubuntu installation
 # CREDITS: Internet
-
+#
 # cd to the folder that contains this script (xupdate.sh)
 # make the script executable with: chmod +x xupdate.sh
 # then run sudo ./xupdate.sh
