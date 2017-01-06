@@ -54,11 +54,12 @@ echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 # ERROR LOGGING SETUP
 echo 'Errors' > xupdate_error.log
 
+# use apt-get and not apt in shell scripts
 xinstall () {
-  apt install -q -y $1 > /dev/null 2>> xupdate_error.log
+  apt-get install -q -y $1 > /dev/null 2>> xupdate_error.log
 }
 xremove () {
-  apt purge -q -y $1 > /dev/null 2>> xupdate_error.log
+  apt-get purge -q -y $1 > /dev/null 2>> xupdate_error.log
 }
 
 # xpi functions for installing firefox extensions
