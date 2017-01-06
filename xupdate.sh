@@ -362,7 +362,7 @@ xinstall libreoffice-pdfimport
 xinstall libreoffice-nlpsolver
 
 if [ "$LANGUAGE" == "fr_FR" ]; then
-  # get the latest version by parsing the download page
+  # get the latest version by parsing telecharger.php
   wget -q http://www.dicollecte.org/grammalecte/telecharger.php
   GOXT=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
   if [ -f "*.oxt" ]; then
@@ -445,7 +445,7 @@ install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM"
 
 # FRANZ
 echo -e "${GR}  Franz...${NC}"
-# get latest version
+# get latest version by parsing latest download page
 wget -q https://github.com/meetfranz/franz-app/releases/latest
 mkdir -p /opt/franz
 if [ "$ARCH" == "64" ]; then
