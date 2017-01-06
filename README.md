@@ -1,6 +1,8 @@
 # xupdate
 
-A post fresh installation script for Xubuntu
+A post fresh installation script for Xubuntu 16.04
+
+English or French
 
 The target is to create a "lazy users" Xubuntu installation
 
