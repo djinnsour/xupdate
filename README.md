@@ -16,22 +16,38 @@ then run sudo ./xupdate.sh
 
 # CHANGELOG
 
-version 0.4
+**version 0.5**
 
-better latest version detection for Franz and Grammalecte
+- added spinner to indicate progress
 
-Fixed chrome installation - machine detection moved higher
+- added appearance packages
 
-version 0.3
+- added stellarium and google earth
 
-added xpi functions and firefox ublock origin plugin installation
+- fixed pipelight installation (but hey, it's dead)
 
-corrected xconf-query autorun command (added create if doesn't exist)
+- added max scrollback to XFCE4 Terminal
 
-better grammalecte installation - detect latest version by parsing download page
+- set apt update periods
 
-various bug fixes
+- various bug fixes
 
-version 0.2 = stabilized version
+**version 0.4**
 
-version 0.1 = nearly there
+- better latest version detection for Franz and Grammalecte
+
+- Fixed chrome installation - machine detection moved higher
+
+**version 0.3**
+
+- added xpi functions and firefox ublock origin plugin installation
+
+- corrected xconf-query autorun command (added create if doesn't exist)
+
+- better grammalecte installation - detect latest version by parsing download page
+
+- various bug fixes
+
+**version 0.2 = stabilized version**
+
+**version 0.1 = nearly there**
