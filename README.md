@@ -26,7 +26,7 @@ then run sudo ./xupdate.sh
 
 - fixed pipelight installation (but hey, it's dead)
 
-- added max scrollback to XFCE4 Terminal
+- added max scrollback and font size 11 to XFCE4 Terminal
 
 - set apt update periods
 
