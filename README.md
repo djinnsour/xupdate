@@ -10,11 +10,15 @@ English or French
 
 HOWTO:
 
-download and cd to the folder that contains the script (xupdate.sh)
+1. download xupdate.sh
 
-make the script executable with chmod +x xupdate.sh
+2. open a terminal
 
-then run sudo ./xupdate.sh
+3. cd to the folder that contains the script (xupdate.sh)
+
+4. chmod +x xupdate.sh
+
+5. sudo ./xupdate.sh
 
 # CHANGELOG
 
