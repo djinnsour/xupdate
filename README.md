@@ -20,9 +20,9 @@ then run sudo ./xupdate.sh
 
 - added spinner to indicate progress
 
-- added appearance packages
+- added appearance packages (numix)
 
-- added stellarium and google earth
+- added education packages (stellarium and google earth)
 
 - fixed pipelight installation (but hey, it's dead)
 
