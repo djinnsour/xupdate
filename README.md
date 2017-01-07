@@ -20,7 +20,7 @@ then run sudo ./xupdate.sh
 
 - added spinner to indicate progress
 
-- added appearance packages (numix)
+- added appearance packages (numix icons and gtk theme)
 
 - added education packages (stellarium and google earth)
 
