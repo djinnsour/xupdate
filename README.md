@@ -1,16 +1,18 @@
 # xupdate
 
-A post fresh installation script for Xubuntu 16.04
+A post installation script for fresh installs of Xubuntu 16.04 LTS
 
-English or French
-
-The target is to create a "lazy users" Xubuntu installation
+A lazy installation for repair shops or noobs
 
 CREDITS: Internet
 
-cd to the folder that contains this script (xupdate.sh)
+English or French
 
-make the script executable with: chmod +x xupdate.sh
+HOWTO:
+
+download and cd to the folder that contains the script (xupdate.sh)
+
+make the script executable with chmod +x xupdate.sh
 
 then run sudo ./xupdate.sh
 
