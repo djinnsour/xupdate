@@ -289,6 +289,8 @@ NUM=`grep -c "ScrollingLines" /home/$XUSER/.config/xfce4/terminal/terminalrc`
 if [ "$NUM" == "0" ]
   echo "ScrollingLines=1048576" >> /home/$XUSER/.config/xfce4/terminal/terminalrc 
 fi
+sed -i '/^FontName*/d' /home/$XUSER/.config/xfce4/terminal/terminalrc
+echo 'FontName=DejaVu Sans Mono 11' >> /home/$XUSER/.config/xfce4/terminal/terminalrc
 
 # =============================================================
 # INSTALL
