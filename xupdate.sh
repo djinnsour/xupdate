@@ -131,6 +131,9 @@ add-apt-repository ppa:pipelight/stable -y > /dev/null 2>> xupdate_error.log & s
 # Libreoffice
 add-apt-repository ppa:libreoffice/ppa -y > /dev/null 2>> xupdate_error.log & spinner $!
 
+# Numix
+apt-add-repository ppa:numix/ppa -y > /dev/null 2>> xupdate_error.log & spinner $!
+
 # Google Chrome (not supported on 32bit)
 if [ "$ARCH" == "64" ]; then
   wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - & spinner $!
