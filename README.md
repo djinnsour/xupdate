@@ -14,7 +14,7 @@ make the script executable with: chmod +x xupdate.sh
 
 then run sudo ./xupdate.sh
 
-# CHANGELOG (newest first)
+# CHANGELOG
 
 version 0.4
 
