@@ -24,7 +24,7 @@ then run sudo ./xupdate.sh
 
 - added education packages (stellarium and google earth)
 
-- fixed pipelight installation (but hey, it's dead)
+- fixed silverlight installation (but hey, it's dead)
 
 - added max scrollback and better font size for XFCE4 Terminal
 
