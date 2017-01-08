@@ -22,6 +22,12 @@ HOWTO:
 
 # CHANGELOG
 
+** 0.6 BETA **
+
+- added mega cloud storage
+
+- added spotify client
+
 **version 0.5**
 
 - added spinner to indicate progress
