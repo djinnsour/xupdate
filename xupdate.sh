@@ -122,6 +122,9 @@ spinner () {
 
 echo -e "${GR}Adding repositories...${NC}"
 
+# ubuntu partner
+sudo add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner"
+
 # Linrunner
 add-apt-repository ppa:linrunner/tlp -y > /dev/null 2>> xupdate_error.log & spinner $!
 
@@ -246,7 +249,7 @@ if [ "$LAPTOP" == "0" ]; then
   VENDOR=`cat /sys/devices/virtual/dmi/id/chassis_vendor`
   if [ "$VENDOR" == "LENOVO" ]; then
     xinstall tp-smapi-dkms 
-    xinstall acpi-call-tools 
+    xinstall acpi-call-dkms 
   fi
   tlp start
   systemctl enable tlp
@@ -342,6 +345,9 @@ xinstall gsmartcontrol
 xinstall mono-complete 
 xinstall bleachbit 
 xinstall gtk2-engines 
+xinstall numlockx
+xinstall deja-dup
+xinstall neofetch
 
 echo -e "${GR}  Compression tools...${NC}"
 
@@ -420,6 +426,7 @@ xinstall cheese
 xinstall mplayer 
 xinstall gnome-mplayer 
 xinstall spotify-client
+xinstall kazam
 
 # =============================================================
 # OFFICE
@@ -430,8 +437,12 @@ echo -e "${GR}  Libreoffice...${NC}"
 xinstall libreoffice 
 xinstall libreoffice-pdfimport
 xinstall libreoffice-nlpsolver
+xinstall libreoffice-gtk
 
 if [ "$LANGUAGE" == "fr_FR" ]; then
+  xinstall ibreoffice-l10n-fr 
+  xinstall libreoffice-help-fr 
+  xinstall hyphen-fr 
   # get the latest version by parsing telecharger.php
   wget -q http://www.dicollecte.org/grammalecte/telecharger.php  & spinner $!
   GOXT=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
@@ -643,6 +654,7 @@ if [ ! "$ERRORS" == "1" ]; then
 fi
 
 echo -e "${GR}######## FINISHED ########${NC}"
+
 
 
 
