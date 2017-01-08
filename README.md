@@ -25,10 +25,10 @@ HOWTO:
 ** 0.6 BETA **
 
 - added mega cloud storage
-- - MEGA: 50Gb, end to end encryption, GUI Linux client
-- - HUBIC: 25Gb, command line only
-- - PCLOUD: 10Gb, encryption is premium feature, GUI Linux client
-- - DROPBOX: 2Gb, GUI client but xubuntu integration needs work
+  - MEGA: 50Gb, end to end encryption, GUI Linux client
+  - HUBIC: 25Gb, command line only
+  - PCLOUD: 10Gb, encryption is premium feature, GUI Linux client
+  - DROPBOX: 2Gb, GUI client but xubuntu integration needs work
 
 - added spotify client
 
