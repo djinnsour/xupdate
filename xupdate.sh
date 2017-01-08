@@ -134,6 +134,10 @@ add-apt-repository ppa:libreoffice/ppa -y > /dev/null 2>> xupdate_error.log & sp
 # Numix
 apt-add-repository ppa:numix/ppa -y > /dev/null 2>> xupdate_error.log & spinner $!
 
+# Spotify
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886
+echo deb http://repository.spotify.com stable non-free  > /etc/apt/sources.list.d/spotify.list
+
 # Google Chrome (not supported on 32bit)
 if [ "$ARCH" == "64" ]; then
   wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - & spinner $!
@@ -415,6 +419,8 @@ xinstall libsox-fmt-all
 xinstall cheese 
 xinstall mplayer 
 xinstall gnome-mplayer 
+xinstall spotify-client
+xinstall spotify-client-gnome-support 
 
 # =============================================================
 # OFFICE
@@ -484,6 +490,7 @@ xinstall numix-folders
 xinstall numix-gtk-theme
 xinstall numix-icon-theme
 xinstall numix-icon-theme-circle 
+xinstall numix-plank-theme
 
 # =============================================================
 # clean up
@@ -581,6 +588,22 @@ if [ "$FR" == "1" ]; then
     # launch to install desktop entry
     sudo -u $XUSER /opt/molotov/$MFILE > /dev/null &
   fi
+fi
+
+--------------------------------------------------------------
+# CLOUD STORAGE
+# MEGA: 50Gb, end to end encryption, GUI Linux client
+# HUBIC: 25Gb, command line only
+# PCLOUD: 10Gb, encryption is premium feature, native Linux client
+# DROPBOX: 2Gb, GUI client but xubuntu integration needs work
+
+if [ "$ARCH" == "64" ]; then
+  wget -q https://mega.nz/linux/MEGAsync/xUbuntu_16.04/amd64/megasync-xUbuntu_16.04_amd64.deb & spinner $!
+  dpkg -i megasync-xUbuntu_16.04_amd64.deb > /dev/null 2>> xupdate_error.log & spinner $!
+fi
+if [ "$ARCH" == "32" ]; then
+  wget -q https://mega.nz/linux/MEGAsync/xUbuntu_16.04/i386/megasync-xUbuntu_16.04_i386.deb & spinner $!
+  dpkg -i megasync-xUbuntu_16.04_amd64.deb > /dev/null 2>> xupdate_error.log & spinner $!
 fi
 
 #--------------------------------------------------------------
