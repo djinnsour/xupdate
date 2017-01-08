@@ -65,11 +65,11 @@ echo 'Errors' > xupdate_error.log
 # use apt-get and not apt in shell scripts
 xinstall () {
   echo "   installing $1 "
-  apt-get install -q -y $1 > /dev/null 2>> xupdate_error.log & spinner $!
+  apt-get install -q -y "$1" > /dev/null 2>> xupdate_error.log & spinner $!
 }
 xremove () {
   echo "   removing $1 "
-  apt-get purge -q -y $1 > /dev/null 2>> xupdate_error.log & spinner $!
+  apt-get purge -q -y "$1" > /dev/null 2>> xupdate_error.log & spinner $!
 }
 
 # XPI functions for installing firefox extensions
@@ -109,7 +109,7 @@ spinner () {
   local pid=$1 
   local delay=0.25 
   while [ $(ps -eo pid | grep $pid) ]; do 
-    for i in \| / - \\; do 
+    for i in '\' '|' '/' '-'  ; do 
       printf ' [%c]\b\b\b\b' $i 
       sleep $delay 
     done 
@@ -138,9 +138,9 @@ add-apt-repository ppa:libreoffice/ppa -y > /dev/null 2>> xupdate_error.log & sp
 apt-add-repository ppa:numix/ppa -y > /dev/null 2>> xupdate_error.log & spinner $!
 
 # Spotify
-# can't silence apt-key
+# todo: silence apt-key
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886 
-echo deb http://repository.spotify.com stable non-free  > /etc/apt/sources.list.d/spotify.list
+echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
 
 # Google Chrome (not supported on 32bit)
 if [ "$ARCH" == "64" ]; then
