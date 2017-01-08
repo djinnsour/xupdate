@@ -420,7 +420,6 @@ xinstall cheese
 xinstall mplayer 
 xinstall gnome-mplayer 
 xinstall spotify-client
-xinstall spotify-client-gnome-support 
 
 # =============================================================
 # OFFICE
