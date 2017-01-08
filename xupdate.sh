@@ -138,7 +138,8 @@ add-apt-repository ppa:libreoffice/ppa -y > /dev/null 2>> xupdate_error.log & sp
 apt-add-repository ppa:numix/ppa -y > /dev/null 2>> xupdate_error.log & spinner $!
 
 # Spotify
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886
+# can't silence apt-key
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886 
 echo deb http://repository.spotify.com stable non-free  > /etc/apt/sources.list.d/spotify.list
 
 # Google Chrome (not supported on 32bit)
@@ -295,8 +296,9 @@ echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 #--------------------------------------------------------------
 # TERMINAL
 # max scrollback in XFCE4 terminal
+
 NUM=`grep -c "ScrollingLines" /home/$XUSER/.config/xfce4/terminal/terminalrc`
-if [ "$NUM" == "0" ]
+if [ "$NUM" == "0" ]; then
   echo "ScrollingLines=1048576" >> /home/$XUSER/.config/xfce4/terminal/terminalrc 
 fi
 sed -i '/^FontName*/d' /home/$XUSER/.config/xfce4/terminal/terminalrc
