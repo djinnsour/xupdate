@@ -296,10 +296,10 @@ echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 #--------------------------------------------------------------
 # TERMINAL
 # max scrollback in XFCE4 terminal
-if [ ! -d /home/$XUSER/.config/xfce4/terminal ]; then
+if [ ! -d "/home/$XUSER/.config/xfce4/terminal" ]; then
 	mkdir -p /home/$XUSER/.config/xfce4/terminal
 ]
-if [ ! -f /home/$XUSER/.config/xfce4/terminal/terminalrc ]; then
+if [ ! -f "/home/$XUSER/.config/xfce4/terminal/terminalrc" ]; then
 	touch /home/$XUSER/.config/xfce4/terminal/terminalrc
 fi
 NUM=`grep -c "ScrollingLines" /home/$XUSER/.config/xfce4/terminal/terminalrc`
