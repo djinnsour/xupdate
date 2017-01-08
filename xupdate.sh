@@ -23,7 +23,7 @@ NC='\033[0m'
 # Make sure only root can run our script
 
 if [ "$(id -u)" != "0" ]; then
-   echo -e "${RD}This script must be run as root, exiting.${NC}" 1>&2
+   echo -e "${RD}This script must be run as root, exiting.${NC}"
    exit 1
 fi
 
@@ -604,7 +604,7 @@ if [ "$FR" == "1" ]; then
   if [ -f "/opt/molotov/$MFILE" ]; then
     chmod +x /opt/molotov/$MFILE
     # launch to install desktop entry
-    sudo -u $XUSER /opt/molotov/$MFILE > /dev/null &
+    sudo -u $XUSER /opt/molotov/$MFILE  > /dev/null 2>&1 &
   fi
 fi
 
