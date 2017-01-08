@@ -24,7 +24,7 @@ HOWTO:
 
 ** 0.6 BETA **
 
-- added mega cloud storage
+- added MEGA cloud storage, because
   - MEGA: 50Gb, end to end encryption, GUI Linux client
   - HUBIC: 25Gb, command line only
   - PCLOUD: 10Gb, encryption is premium feature, GUI Linux client
