@@ -22,15 +22,24 @@ HOWTO:
 
 # CHANGELOG
 
-** 0.6 BETA **
+**version 0.6**
 
-- added MEGA cloud storage, because
+- Extra packages are now proposed for installation at the start of the script
+ - Skype, Ublock Origin, Numix theme, Franz, Google Earth, Mega, Molotov, Pipelight
+
+- only one log now, xupdate.log
+
+- added Devilspie
+
+- Extra Packages: added Skype
+
+- Extra Packages: added MEGA cloud storage, because
   - MEGA: 50Gb, end to end encryption, GUI Linux client
   - HUBIC: 25Gb, command line only
   - PCLOUD: 10Gb, encryption is premium feature, GUI Linux client
   - DROPBOX: 2Gb, GUI client but xubuntu integration needs work
 
-- added spotify client
+- Extra Packages: added spotify client
 
 **version 0.5**
 
