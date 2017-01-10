@@ -499,6 +499,11 @@ xinstall typecatcher
 xinstall geany 
 xinstall geany-plugin* 
 
+# =============================================================
+# DESKTOP
+
+echo -e "${GR}  Desktop...${NC}"
+
 xinstall plank
 cat < <<EOF /home/$XUSER/.config/autostart/devilspie.desktop
 [Desktop Entry]
