@@ -289,8 +289,8 @@ if [ "$SSD" == "0" ]; then
     sed -i -e "s/sortstrategy = 3/sortstrategy = 0/g" /etc/preload.conf
   fi
   # fstab - keep tmp folder and logs in ram (desktop only)
-  echo 'tmpfs /tmp     tmpfs defaults,noatime,size=1g 0 0' >> /etc/fstab
-  echo 'tmpfs /var/log tmpfs defaults,nosuid,nodev,noatime,mode=0755,size=5% 0 0' >> /etc/fstab
+  echo 'tmpfs /tmp     tmpfs defaults,noexec,nosuid,noatime,size=20% 0 0' >> /etc/fstab
+  echo 'tmpfs /var/log tmpfs defaults,noexec,nosuid,noatime,mode=0755,size=20% 0 0' >> /etc/fstab
   echo ' ' >> /etc/fstab
   # fstrim is configured weekly by default
   # grub
@@ -484,8 +484,7 @@ xinstall hplip-gui
 # ACCESSORIES
 
 echo -e "${GR}  Accessories...${NC}"
-
-xinstall plank 
+ 
 xinstall gedit 
 xinstall gedit-plugins 
 xinstall gedit-developer-plugins  
@@ -499,6 +498,21 @@ xinstall brasero
 xinstall typecatcher 
 xinstall geany 
 xinstall geany-plugin* 
+
+xinstall plank
+cat < <<EOF /home/$XUSER/.config/autostart/devilspie.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=Plank
+Comment=
+Exec=/usr/bin/plank
+OnlyShowIn=XFCE;
+StartupNotify=false
+Terminal=false
+Hidden=false
+EOF
 
 # =============================================================
 # GRAPHICS
@@ -703,20 +717,24 @@ if [ "$ARCH" == "32" ]; then
 fi
 wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
 if [ ! -f /usr/share/applications/franz.desktop ]; then
-cat <<EOF > /usr/share/applications/franz.desktop                                                                 
+cat <<EOF > /usr/share/applications/Franz.desktop                                                                 
 [Desktop Entry]
-Version=1.0
+Encoding=UTF-8
+Version=0.9.4
 Type=Application
 Name=Franz
+Comment=Franz is a free messaging app 
 Exec=/opt/franz/Franz
 Icon=/opt/franz/franz-icon.png
-Terminal=false
+OnlyShowIn=XFCE;
 StartupNotify=false
-Type=Application
-Categories=Messaging,Internet
+Terminal=false
+Hidden=false
+Categories=Network;Messaging;
 EOF
 fi
 cp /usr/share/applications/franz.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
+cp /usr/share/applications/franz.desktop /home/$XUSER/.config/autostart/ 2>> xupdate.log
 cat <<EOF > /home/$XUSER/.devilspie/franz.ds
 (if  
 (is (application_name) "Franz")  
