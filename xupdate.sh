@@ -5,7 +5,6 @@
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
-# Philip Wittamore - www.wittamore.com
 #
 # --------------------------------------------------------------
 # INSTALLATION
@@ -14,6 +13,7 @@
 # then run sudo ./xupdate.sh
 #
 # --------------------------------------------------------------
+# Copyright 2017 Philip Wittamore http://www.wittamore.com
 # GNU General Public License
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
