@@ -158,12 +158,12 @@ printf "\033c"
 echo -e "${GR}Starting Xubuntu post-installation script.${NC}"
 echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # FIND USER AND GROUP THAT RAN su or sudo su
 XUSER=`logname`
 XGROUP=`id -ng $XUSER`
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # GET ARCHITECTURE
 MACHINE_TYPE=`uname -m`
 if [ "$MACHINE_TYPE" == "x86_64" ]; then
@@ -172,7 +172,7 @@ else
   ARCH="32"
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # GET IP AND IS COUNTRY FRANCE
 IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
 FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
@@ -182,15 +182,15 @@ else
   DESKTOP="Desktop"
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # shut up installers
 export DEBIAN_FRONTEND=noninteractive
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # ERROR LOGGING SETUP
 echo 'XUPDATE LOG' > xupdate.log
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # use apt-get and not apt in shell scripts
 xinstall () {
   echo "   installing $1 "
@@ -201,7 +201,7 @@ xremove () {
   apt-get purge -q -y "$1" >> xupdate.log 2>&1 & spinner $!
 }
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # XPI functions for installing firefox extensions
 
 EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
@@ -233,7 +233,7 @@ install_addon () {
     fi
 }
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # working spinner
 
 spinner () { 
@@ -289,7 +289,7 @@ apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 
 echo -e "${GR}Setting up the system...${NC}"
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # PRELOAD 
 # not for low memory systems, arbitrarily set to 2Gb
 MEM=`free | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2`
@@ -297,7 +297,7 @@ if (($MEM > 2097152)); then
   xinstall preload
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # IF SSD
 SSD=`cat /sys/block/sda/queue/rotational`
 if [ "$SSD" == "0" ]; then
@@ -317,16 +317,16 @@ if [ "$SSD" == "0" ]; then
   update-grub >> xupdate.log 2>&1
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # cache for symbol tables. Qt / GTK programs will start a bit quicker and consume less memory
 # http://vasilisc.com/speedup_ubuntu_eng#compose_cache
 mkdir -p /home/$XUSER/.compose-cache
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Get rid of “Sorry, Ubuntu xx has experienced internal error”
 sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Memory management
 if [ "$SSD" == "0" ]; then
   echo "vm.swappiness=1" > /etc/sysctl.d/99-swappiness.conf
@@ -336,13 +336,13 @@ fi
 echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-swappiness.conf
 sysctl -p /etc/sysctl.d/99-swappiness.conf >> xupdate.log 2>&1 
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Enable unattended security upgrades
 echo 'Unattended-Upgrade::Remove-Unused-Dependencies "true";' >> /etc/apt/apt.conf.d/50unattended-upgrades
 sed -i '/^\/\/.*-updates.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrades
 sed -i '/^\/\/.*-backports.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrades
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Set update periods
 rm /etc/apt/apt.conf.d/10periodic
 cat <<EOF > /etc/apt/apt.conf.d/10periodic
@@ -353,7 +353,7 @@ APT::Periodic::Unattended-Upgrade "1";
 EOF
 chmod 644 /etc/apt/apt.conf.d/10periodic
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Manage Laptop battery & overheating 
 LAPTOP=`laptop-detect; echo -e  $?`
 if [ "$LAPTOP" == "0" ]; then
@@ -370,7 +370,7 @@ if [ "$LAPTOP" == "0" ]; then
   systemctl enable tlp-sleep >> xupdate.log 2>&1
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Wifi power control off for faster wifi at a slight cost of battery
 WIFI=`lspci | egrep -c -i 'wifi|wlan|wireless'`
 if [ "$WIFI" == "1" ];
@@ -381,7 +381,7 @@ then
   chmod 755 /etc/pm/power.d/wireless
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Speed up gtk
 echo "gtk-menu-popup-delay = 0" > /home/$XUSER/.gtkrc-2.0
 echo "gtk-menu-popdown-delay = 0" >> /home/$XUSER/.gtkrc-2.0
@@ -391,14 +391,14 @@ echo "gtk-timeout-expand = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-timeout-initial = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-timeout-repeat = 0" >> /home/$XUSER/.gtkrc-2.0
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # FILE DEFAULTS
 # override rhythmbox parole
 # audio
 sed -i -e "s/rhythmbox.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 sed -i -e "s/parole.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # MEDIA INSERT
 # auto run inserted DVD's & CD's with VLC, and import photo's
 xfconf-query -c thunar-volman -p /autoplay-audio-cds/command -n -t string -s "vlc cdda:///dev/sr0"
@@ -650,13 +650,13 @@ apt-get install -f -y >> xupdate.log 2>&1
 
 echo -e "${GR}Installing selected extra applications...${NC}"
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Skype
 if [ "$INSTSKYPE" == "1" ]; then
   xinstall skype
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Spotify
 if [ "$INSTSPOTIFY" == "1" ]; then
 echo -e "${GR}   installing Google Earth...${NC}"
@@ -667,7 +667,7 @@ apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
 xinstall spotify-client
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Google Earth
 if [ "$INSTGEARTH" == "1" ]; then
 echo -e "${GR}   installing Google Earth...${NC}"
@@ -680,7 +680,7 @@ else
 fi
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Numix
 if [ "$INSTNUMIX" == "1" ]; then
 echo -e "${GR}   installing Numix theme...${NC}"
@@ -694,7 +694,7 @@ xinstall numix-icon-theme-circle
 xinstall numix-plank-theme
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Enable silverlight plugin in firefox
 # Pipelight development has been discontinued, as Firefox is
 # retiring NPAPI support soon, and Silverlight is dead
@@ -711,7 +711,7 @@ if [ "$INSTPIPELIGHT" == "1" ]; then
   sudo -u $XUSER pipelight-plugin -y --enable silverlight >> xupdate.log 2>&1
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Add Ublock Origin plugin to Firefox
 if [ "$INSTUBLOCK" == "1" ]; then
 echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
@@ -720,7 +720,7 @@ wget -q https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-
 install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM" >> xupdate.log 2>&1
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # FRANZ a free messaging app.
 # Franz currently supports Slack, WhatsApp, WeChat, HipChat, Facebook Messenger, 
 # Telegram, Google Hangouts, GroupMe, Skype and many more.
@@ -765,7 +765,7 @@ cat <<EOF > /home/$XUSER/.devilspie/franz.ds
 EOF
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # MOLOTOV French TV online viewer (only works in France)
 # It is impossible to obtain the latest version number
 # so it has to be manually added here. Grrr...
@@ -784,7 +784,7 @@ if [ "$INSTMOLOTOV" == "1" ]; then
   sudo -u $XUSER /opt/molotov/$MFILE &
 fi
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # CLOUD STORAGE
 # MEGA: 50Gb, end to end encryption, GUI Linux client
 # HUBIC: 25Gb, command line only
@@ -821,12 +821,12 @@ fi
 # =============================================================
 # FINISH
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # update system icon cache
 echo -e "${GR}Update icon cache...${NC}"
 for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>&1; done 
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # add default desktop launchers
 echo -e "${GR}Install default desktop launchers...${NC}"
 cp /usr/share/applications/firefox.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
