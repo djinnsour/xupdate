@@ -69,7 +69,7 @@ fi
 # Dialog
 apt-get install dialog >> xupdate.log 2>&1
 
-cmd=(dialog --separate-output --checklist "Xubuntu 16.04 : Select extra packages" 22 76 9)
+cmd=(dialog --separate-output --checklist "Xubuntu 16.04 : Select extra packages" 20 70 9)
 options=(1 "Skype - proprietary messaging application " off \
          2 "Ublock Origin - advert blocker for Firefox" off \
          3 "Franz - a free messaging application" off \
