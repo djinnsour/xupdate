@@ -26,7 +26,7 @@ HOWTO:
 
 - added extra package selection using dialog
 
-- removed ristretto image viewer as shotwell viewer allows printing and set as default
+- removed ristretto, set shotwell viewer as default (allows printing)
 
 - added ctrl+alt+backspace
 
