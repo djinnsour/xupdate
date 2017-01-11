@@ -22,6 +22,14 @@ HOWTO:
 
 # CHANGELOG
 
+**version 0.7**
+
+- added extra package selection using dialog
+
+- removed ristretto image viewer as shotwell viewer allows printing and set as default
+
+- added ctrl+alt+backspace
+
 **version 0.6**
 
 - Extra packages are now proposed for installation at the start of the script
