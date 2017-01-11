@@ -397,7 +397,7 @@ echo -e "${GR}  Base...${NC}"
 # and installed before the rest of the packages:
 echo -e "${GR}  Fixing ttf-mscorefonts bug...${NC}"
 xinstall cabextract
-wget -q http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
+wget -q http://ftp.fr.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 dpkg -i ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 
 echo -e "${GR}  Applications with restricted copyright...${NC}"
@@ -439,14 +439,13 @@ xinstall deja-dup
 # for example: start Franz minimized (see below)
 xinstall devilspie
 mkdir -p /home/$XUSER/.devilspie
-cat < <<EOF /home/$XUSER/.config/autostart/devilspie.desktop
+cat <<EOF > /etc/xdg/autostart/devilspie.desktop
 [Desktop Entry]
 Encoding=UTF-8
 Type=Application
 Name=devilspie
-Comment=
+Comment=RunDevilspie
 Exec=/usr/bin/devilspie
-OnlyShowIn=XFCE;
 StartupNotify=false
 Terminal=false
 Hidden=false
@@ -503,7 +502,7 @@ xinstall geany-plugin*
 echo -e "${GR}  Desktop...${NC}"
 
 xinstall plank
-cat < <<EOF /home/$XUSER/.config/autostart/Plank.desktop
+cat <<EOF > /home/$XUSER/.config/autostart/Plank.desktop
 [Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
