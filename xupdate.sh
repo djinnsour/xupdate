@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# xupdate.sh version 0.6
+# xupdate.sh version 0.7
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
@@ -30,7 +30,11 @@
 # --------------------------------------------------------------
 
 # clear terminal
-printf "\033c"
+clear
+
+# --------------------------------------------------------------
+# ERROR LOGGING SETUP
+echo 'XUPDATE LOG' > xupdate.log
 
 # =============================================================
 # text colour
@@ -39,14 +43,12 @@ GR='\033[1;32m'
 RD='\033[1;31m'
 NC='\033[0m'
 
-echo -e "${GR}xupdate - a Xubuntu post installation script${NC}"
-
 # =============================================================
 # Make sure only root can run our script
 
 if [ "$(id -u)" != "0" ]; then
-   echo -e "${RD}This script must be run as root, exiting.${NC}"
-   exit 1
+ echo -e "${RD}This script must be run as root, exiting.${NC}"
+ exit 1
 fi
 
 # =============================================================
@@ -55,107 +57,69 @@ fi
 echo -e "${GR}Testing internet connection...${NC}"
 wget -q --tries=10 --timeout=20 --spider http://google.com
 if [[ $? -eq 0 ]]; then
-        echo -e "${GR}Internet connection OK.${NC}"
+  echo -e "${GR}Internet connection OK.${NC}"
 else
-        echo -e "${RD}This script requires an internet connection, exiting.${NC}"
-        exit 1
+  echo -e "${RD}This script requires an internet connection, exiting.${NC}"
+  exit 1
 fi
 
 # =============================================================
 # SELECT EXTRA PACKAGES
 
-echo -e "${RD}Please indicate if you wish to install these extra applications:${NC}"
-echo
-echo -e "${GR}Skype - a proprietary messaging application.${NC}"
-echo -e "${RD}WARNING: Skype is unsafe and not allowed in French universities.${NC}"
-echo -e "${RD}If you just require Skype text messaging, select Franz instead.${NC}"
-while true; do
-    read -p "Do you wish to install Skype? : " yn
-    case $yn in
-        [Yy]* ) INSTSKYPE="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Ublock Origin - advert blocker for Firefox.${NC}"
-while true; do
-    read -p "Do you wish to install Ublock Origin? : " yn
-    case $yn in
-        [Yy]* ) INSTUBLOCK="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Numix - make your Linux desktop beautiful${NC}"
-while true; do
-    read -p "Do you wish to install the Numix theme? : " yn
-    case $yn in
-        [Yy]* ) INSTNUMIX="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Franz - a free messaging application${NC}"
-while true; do
-    read -p "Do you wish to install Franz? : " yn
-    case $yn in
-        [Yy]* ) INSTFRANZ="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Google Earth${NC}"
-echo -e "${RD}requires sufficient video ressources{NC}"
-while true; do
-    read -p "Do you wish to install Google Earth? : " yn
-    case $yn in
-        [Yy]* ) INSTGEARTH="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Mega - 50Gb cloud storage with end to end encryption and GUI Linux client${NC}"
-while true; do
-    read -p "Do you wish to install Mega? : " yn
-    case $yn in
-        [Yy]* ) INSTMEGA="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Molotov - a free French TV application (only works in France)${NC}"
-while true; do
-    read -p "Do you wish to install Molotov? : " yn
-    case $yn in
-        [Yy]* ) INSTMOLOTOV="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo
-echo -e "${GR}Pipelight - enable the Windows Silverlight plugin in Firefox${NC}"
-echo -e "${RD}NOTE: Firefox will terminate NPAPI support soon and Silverlight is dead${NC}"
-while true; do
-    read -p "Do you wish to install Pipelight? : " yn
-    case $yn in
-        [Yy]* ) INSTPIPELIGHT="1"; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
+# Dialog
+apt-get install dialog >> xupdate.log 2>&1
+
+cmd=(dialog --separate-output --checklist "Xubuntu 16.04 : Select extra packages" 22 76 9)
+options=(1 "Skype - proprietary messaging application " off \
+         2 "Ublock Origin - advert blocker for Firefox" off \
+         3 "Franz - a free messaging application" off \
+         4 "Google Earth" off \
+         5 "Mega - 50Gb encrypted cloud storage" off \
+         6 "Molotov - a free French TV viewer" off \
+         7 "Pipelight - enable Silverlight in Firefox" off \
+         8 "Sublime Text - sophisticated text editor" off \
+         9 "Numix theme - make your desktop beautiful" off)
+
+choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+for choice in $choices 
+do
+  case $choice in
+    1)
+    INSTSKYPE="1"
+    ;;
+    2)
+    INSTUBLOCK="1"
+    ;;
+    3)
+    INSTFRANZ="1"
+    ;;
+    4)
+    INSTGEARTH="1"
+    ;;
+    5)
+    INSTMEGA="1"
+    ;;
+    6)
+    INSTMOLOTOV="1"
+    ;;
+    7)
+    INSTPIPELIGHT="1"
+    ;;
+    8)
+    INSTSUBLIME="1"
+    ;;
+    9)
+    INSTNUMIX="1"
+    ;;
+  esac
 done
 
 # =============================================================
 # START
 
 # clear terminal
-printf "\033c"
-echo -e "${GR}Starting Xubuntu post-installation script.${NC}"
+clear
+echo -e "${GR}Starting Xubuntu 16.04 post-installation script.${NC}"
 echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 
 # --------------------------------------------------------------
@@ -165,12 +129,11 @@ XGROUP=`id -ng $XUSER`
 
 # --------------------------------------------------------------
 # GET ARCHITECTURE
-MACHINE_TYPE=`uname -m`
-if [ "$MACHINE_TYPE" == "x86_64" ]; then
-  ARCH="64"
-else
-  ARCH="32"
-fi
+ARCH=`uname -m`
+
+# --------------------------------------------------------------
+# shut up installers
+export DEBIAN_FRONTEND=noninteractive
 
 # --------------------------------------------------------------
 # GET IP AND IS COUNTRY FRANCE
@@ -181,14 +144,6 @@ if [ "$FR" == "1" ]; then
 else
   DESKTOP="Desktop"
 fi
-
-# --------------------------------------------------------------
-# shut up installers
-export DEBIAN_FRONTEND=noninteractive
-
-# --------------------------------------------------------------
-# ERROR LOGGING SETUP
-echo 'XUPDATE LOG' > xupdate.log
 
 # --------------------------------------------------------------
 # use apt-get and not apt in shell scripts
@@ -208,45 +163,47 @@ EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9
 EXTENSIONS_USER=`echo /home/$XUSER/.mozilla/firefox/*.default/extensions/`
 
 get_addon_id_from_xpi () { #path to .xpi file
-    addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
-    addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
-    echo "$addon_id"
+  addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
+  addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+  echo "$addon_id"
 }
 
 get_addon_name_from_xpi () { #path to .xpi file
-    addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
-    addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
-    echo "$addon_name"
+  addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
+  addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+  echo "$addon_name"
 }
 
 install_addon () {
-    xpi="${PWD}/${1}"
-    extensions_path=$2
-    new_filename=`get_addon_id_from_xpi $xpi`.xpi
-    new_filepath="${extensions_path}${new_filename}"
-    addon_name=`get_addon_name_from_xpi $xpi`
-    if [ -f "$new_filepath" ]; then
-        echo "File already exists: $new_filepath"
-        echo "Skipping installation for addon $addon_name."
-    else
-        cp "$xpi" "$new_filepath"
-    fi
+  xpi="${PWD}/${1}"
+  extensions_path=$2
+  new_filename=`get_addon_id_from_xpi $xpi`.xpi
+  new_filepath="${extensions_path}${new_filename}"
+  addon_name=`get_addon_name_from_xpi $xpi`
+  if [ -f "$new_filepath" ]; then
+    echo "File already exists: $new_filepath"
+    echo "Skipping installation for addon $addon_name."
+  else
+    cp "$xpi" "$new_filepath"
+  fi
 }
 
 # --------------------------------------------------------------
 # working spinner
 
 spinner () { 
-  local pid=$1 
-  local delay=0.7
-  while [ $(ps -eo pid | grep -c $pid) == "1" ]; do 
-    for i in '\' '|' '/' '-'  ; do 
-      printf ' [%c]\b\b\b\b' $i 
-      sleep $delay 
-    done 
+local pid=$1 
+local delay=0.7
+while [ $(ps -eo pid | grep -c $pid) == "1" ]; do 
+  for i in '\' '|' '/' '-'  ; do 
+    printf ' [%c]\b\b\b\b' $i 
+    sleep $delay 
   done 
-  printf '\b\b\b\b'
+done 
+printf '\b\b\b\b'
 }
+
+exit
 
 # =============================================================
 # ADD REPOSITORIES
@@ -268,13 +225,23 @@ if [ "$ARCH" == "64" ]; then
   echo "deb https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 fi
 
+if [ $INSTNUMIX=="1" ]; then
+  apt-add-repository ppa:numix/ppa -y >> xupdate.log 2>&1 & spinner $!
+fi
+if [ $INSTPIPELIGHT=="1" ]; then
+  add-apt-repository ppa:pipelight/stable -y >> xupdate.log 2>&1 & spinner $!
+fi
+
 # =============================================================
 # REMOVE
 # we are replacing parole with VLC
 
 echo -e "${GR}Removing files...${NC}"
 
+# VLC does a better job
 xremove parole
+# Shotwell viewer allows printing
+xremove ristretto
 
 # =============================================================
 # UPDATE & UPGRADE
@@ -285,9 +252,9 @@ echo -e "${GR}Upgrading...${NC}"
 apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 
 # =============================================================
-# SYSTEM
+# TWEAKS
 
-echo -e "${GR}Setting up the system...${NC}"
+echo -e "${GR}Tweaking the system...${NC}"
 
 # --------------------------------------------------------------
 # PRELOAD 
@@ -296,6 +263,10 @@ MEM=`free | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2`
 if (($MEM > 2097152)); then
   xinstall preload
 fi
+
+# --------------------------------------------------------------
+# Enable ctrl+alt+backspace
+sed -i -e "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /etc/default/keyboard
 
 # --------------------------------------------------------------
 # IF SSD
@@ -374,7 +345,7 @@ fi
 # Wifi power control off for faster wifi at a slight cost of battery
 WIFI=`lspci | egrep -c -i 'wifi|wlan|wireless'`
 if [ "$WIFI" == "1" ];
-then
+  then
   WIFINAME=`iwgetid | cut -d ' ' -f 1`
   echo '#!/bin/sh' >  /etc/pm/power.d/wireless
   echo "/sbin/iwconfig $WIFINAME power off" >> /etc/pm/power.d/wireless
@@ -415,10 +386,12 @@ echo -e "${GR}  Base...${NC}"
 
 # Due to a bug in ttf-mscorefonts-installer, this package must be downloaded from Debian 
 # and installed before the rest of the packages:
+echo -e "${GR}  Fixing ttf-mscorefonts bug...${NC}"
 xinstall cabextract
 wget -q http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 dpkg -i ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 
+echo -e "${GR}  Applications with restricted copyright...${NC}"
 xinstall xubuntu-restricted-extras
 ubuntu-drivers autoinstall >> xupdate.log 2>&1 & spinner $!
 
@@ -471,7 +444,6 @@ Hidden=false
 EOF
 
 # Tool for enabling write support on NTFS disks
-echo -e "${GR}  NTFS write support...${NC}"
 xinstall ntfs-config 
 if [ ! -d /etc/hal/fdi/policy ]; then
   mkdir -p /etc/hal/fdi/policy
@@ -501,7 +473,7 @@ xinstall hplip-gui
 # ACCESSORIES
 
 echo -e "${GR}  Accessories...${NC}"
- 
+
 xinstall gedit 
 xinstall gedit-plugins 
 xinstall gedit-developer-plugins  
@@ -550,7 +522,15 @@ xinstall gimp-data-extras
 xinstall pandora 
 xinstall pinta 
 xinstall photoprint 
+
 xinstall shotwell
+# shotwell viewer replaces ristretto as it allows printing
+xdg-mime default shotwell-viewer.desktop image/jpeg
+xdg-mime default shotwell-viewer.desktop image/png
+xdg-mime default shotwell-viewer.desktop image/tiff
+xdg-mime default shotwell-viewer.desktop image/bmp
+xdg-mime default shotwell-viewer.desktop image/raw
+
 xinstall openshot 
 xinstall dia-gnome 
 xinstall inkscape 
@@ -659,39 +639,48 @@ fi
 # --------------------------------------------------------------
 # Spotify
 if [ "$INSTSPOTIFY" == "1" ]; then
-echo -e "${GR}   installing Google Earth...${NC}"
-gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 2>> xupdate.log
-gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - >> xupdate.log 2>&1 
-echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
-apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
-xinstall spotify-client
+  echo -e "${GR}   installing Google Earth...${NC}"
+  gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 2>> xupdate.log
+  gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - >> xupdate.log 2>&1 
+  echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
+  apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
+  xinstall spotify-client
 fi
 
 # --------------------------------------------------------------
 # Google Earth
 if [ "$INSTGEARTH" == "1" ]; then
-echo -e "${GR}   installing Google Earth...${NC}"
-if [ "$ARCH" == "64" ]; then
-  wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
-  dpkg -i google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
-else
-  wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb >> xupdate.log 2>&1 & spinner $!
-  dpkg -i google-earth-stable_current_i386.deb >> xupdate.log 2>&1 & spinner $!
-fi
+  echo -e "${GR}   installing Google Earth...${NC}"
+  if [ "$ARCH" == "64" ]; then
+    wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
+    dpkg -i google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
+  else
+    wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb >> xupdate.log 2>&1 & spinner $!
+    dpkg -i google-earth-stable_current_i386.deb >> xupdate.log 2>&1 & spinner $!
+  fi
 fi
 
 # --------------------------------------------------------------
 # Numix
 if [ "$INSTNUMIX" == "1" ]; then
-echo -e "${GR}   installing Numix theme...${NC}"
-# Numix
-apt-add-repository ppa:numix/ppa -y >> xupdate.log 2>&1 & spinner $!
-apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
-xinstall numix-folders
-xinstall numix-gtk-theme
-xinstall numix-icon-theme
-xinstall numix-icon-theme-circle 
-xinstall numix-plank-theme
+  echo -e "${GR}   installing Numix theme...${NC}"
+  xinstall numix-folders
+  xinstall numix-gtk-theme
+  xinstall numix-icon-theme
+  xinstall numix-icon-theme-circle 
+  xinstall numix-plank-theme
+fi
+
+# --------------------------------------------------------------
+# Sublime Text 3
+if [ "INSTSUBLIME" == "1" ]; then
+  if [ "$ARCH" == "64" ]; then
+    wget -q/opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
+    dpkg -i sublime-text_build-3126_amd64.deb >> xupdate.log 2>&1 & spinner $!
+  else
+    https://download.sublimetext.com/sublime-text_build-3126_i386.deb & spinner $!
+    dpkg -i sublime-text_build-3126_i386.deb >> xupdate.log 2>&1 & spinner $!
+  fi
 fi
 
 # --------------------------------------------------------------
@@ -701,8 +690,6 @@ fi
 # see http://pipelight.net/
 if [ "$INSTPIPELIGHT" == "1" ]; then  
   echo -e "${GR}   installing Pipelight...${NC}"
-  add-apt-repository ppa:pipelight/stable -y >> xupdate.log 2>&1 & spinner $!
-  apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
   apt-get install -y -q --install-recommends pipelight-multi >> xupdate.log 2>&1 & spinner $!
   chmod 777 /usr/lib/pipelight/
   chmod 666 /usr/lib/pipelight/*
@@ -714,10 +701,10 @@ fi
 # --------------------------------------------------------------
 # Add Ublock Origin plugin to Firefox
 if [ "$INSTUBLOCK" == "1" ]; then
-echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
-echo -e "${RD}   NOTE: Plugin must be activated manually in Firefox${NC}"
-wget -q https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi >> xupdate.log 2>&1 & spinner $!
-install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM" >> xupdate.log 2>&1
+  echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
+  echo -e "${RD}   NOTE: Plugin must be activated manually in Firefox${NC}"
+  wget -q https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi >> xupdate.log 2>&1 & spinner $!
+  install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM" >> xupdate.log 2>&1
 fi
 
 # --------------------------------------------------------------
@@ -725,7 +712,7 @@ fi
 # Franz currently supports Slack, WhatsApp, WeChat, HipChat, Facebook Messenger, 
 # Telegram, Google Hangouts, GroupMe, Skype and many more.
 if [ "$INSTFRANZ" == "1" ]; then
-echo -e "${GR}   installing Franz...${NC}"
+  echo -e "${GR}   installing Franz...${NC}"
 # get latest version by parsing latest download page
 wget -q https://github.com/meetfranz/franz-app/releases/latest 
 mkdir -p /opt/franz
@@ -842,6 +829,8 @@ update-grub >> xupdate.log 2>&1
 
 # safely correct permissions because we are working as root
 chown -R $XUSER:$XGROUP /home/$XUSER
+
+xdotool key Alt+F11
 
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
