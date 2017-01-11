@@ -33,7 +33,7 @@ HOWTO:
 **version 0.6**
 
 - Extra packages are now proposed for installation at the start of the script
- - Skype, Ublock Origin, Numix theme, Franz, Google Earth, Mega, Molotov, Pipelight
+ - Skype, Ublock Origin, Numix theme, Franz, Google Earth, Mega, Molotov, Wine, Pipelight
 
 - only one log now, xupdate.log
 
