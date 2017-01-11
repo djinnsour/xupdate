@@ -494,7 +494,7 @@ xinstall geany-plugin*
 echo -e "${GR}  Desktop...${NC}"
 
 xinstall plank
-cat < <<EOF /home/$XUSER/.config/autostart/devilspie.desktop
+cat < <<EOF /home/$XUSER/.config/autostart/Plank.desktop
 [Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
