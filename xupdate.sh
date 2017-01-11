@@ -579,11 +579,10 @@ if [ "$LANGUAGE" == "fr_FR" ]; then
   xinstall hyphen-fr 
   # get the latest version by parsing telecharger.php
   wget -q http://www.dicollecte.org/grammalecte/telecharger.php  >> xupdate.log 2>&1 & spinner $!
-  GOXT=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
-  if [ -f "*.oxt" ]; then
-    wget -q $GOXT  >> xupdate.log 2>&1 & spinner $!
-    unopkg add --shared -f G`echo $GOXT | cut -f2 -d 'G'`
-  fi
+  GOXTURL=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
+  GOXT=G`echo $GOXTURL | cut -f2 -d 'G'`
+  wget -q $GOXTURL  >> xupdate.log 2>&1 & spinner $!
+  unopkg add --shared -f $GOXT
 fi
 
 # =============================================================
