@@ -69,6 +69,7 @@ fi
 apt-get install dialog >> xupdate.log 2>&1
 
 cmd=(dialog --separate-output --checklist "Xubuntu 16.04 : Options" 20 70 10)
+
 options=(1 "Install Skype - proprietary messaging application " off \
          2 "Install Ublock Origin - advert blocker for Firefox" off \
          3 "Install Franz - a free messaging application" off \
@@ -78,7 +79,7 @@ options=(1 "Install Skype - proprietary messaging application " off \
          7 "Install Pipelight - enable Silverlight in Firefox" off \
          8 "Install Sublime Text - sophisticated text editor" off \
          9 "Install Numix theme - make your desktop beautiful" off \
-         10 "Install WINE - run certain windows applications")
+         10 "Install WINE - run certain windows applications" off)
 
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 for choice in $choices 
