@@ -68,7 +68,7 @@ fi
 # install dialog if not available
 apt-get install dialog >> xupdate.log 2>&1
 
-cmd=(dialog --separate-output --checklist "Xupdate Optional Packages" 20 70 10)
+cmd=(dialog --separate-output --checklist "Xupdate : Select optional packages" 20 70 10)
 
 options=(1 "Skype - proprietary messaging application " off \
          2 "Ublock Origin - advert blocker for Firefox" off \
