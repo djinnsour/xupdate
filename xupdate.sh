@@ -420,6 +420,7 @@ xinstall joe
 xinstall mc 
 xinstall curl 
 xinstall gparted
+xinstall gpart
 xinstall ppa-purge 
 xinstall synaptic 
 xinstall gdebi 
@@ -429,6 +430,8 @@ xinstall fancontrol
 xinstall indicator-cpufreq 
 xinstall smartmontools 
 xinstall gsmartcontrol 
+xinstall gnome-search-tool
+xinstall searchmonkey
 xinstall mono-complete 
 xinstall bleachbit 
 xinstall gtk2-engines 
