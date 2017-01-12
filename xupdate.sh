@@ -63,23 +63,23 @@ else
 fi
 
 # =============================================================
-# SELECT EXTRA PACKAGES
+# SELECT OPTIONAL PACKAGES
 
 # install dialog if not available
 apt-get install dialog >> xupdate.log 2>&1
 
-cmd=(dialog --separate-output --checklist "Xubuntu 16.04 : Options" 20 70 10)
+cmd=(dialog --separate-output --checklist "Xupdate Optional Packages" 20 70 10)
 
-options=(1 "Install Skype - proprietary messaging application " off \
-         2 "Install Ublock Origin - advert blocker for Firefox" off \
-         3 "Install Franz - a free messaging application" off \
-         4 "Install Google Earth" off \
-         5 "Install Mega - 50Gb encrypted cloud storage" off \
-         6 "Install Molotov - a free French TV viewer" off \
-         7 "Install Pipelight - enable Silverlight in Firefox" off \
-         8 "Install Sublime Text - sophisticated text editor" off \
-         9 "Install Numix theme - make your desktop beautiful" off \
-         10 "Install WINE - run certain windows applications" off)
+options=(1 "Skype - proprietary messaging application " off \
+         2 "Ublock Origin - advert blocker for Firefox" off \
+         3 "Franz - a free messaging application" off \
+         4 "Google Earth" off \
+         5 "Mega - 50Gb encrypted cloud storage" off \
+         6 "Molotov - a free French TV viewer" off \
+         7 "Pipelight - enable Silverlight in Firefox" off \
+         8 "Sublime Text - sophisticated text editor" off \
+         9 "Numix theme - make your desktop beautiful" off \
+         10 "WINE - run certain windows applications" off)
 
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 for choice in $choices 
