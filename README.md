@@ -30,6 +30,8 @@ HOWTO:
 
 - added ctrl+alt+backspace
 
+- added gnome-search-tool, searchmonkey
+
 **version 0.6**
 
 - Extra packages are now proposed for installation at the start of the script
