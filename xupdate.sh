@@ -249,6 +249,11 @@ fi
 if [ "$INSTPIPELIGHT" == "1" ]; then
   add-apt-repository ppa:pipelight/stable -y >> xupdate.log 2>&1 & spinner $!
 fi
+if [ "$INSTSPOTIFY" == "1" ]; then
+  gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 2>> xupdate.log
+  gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - >> xupdate.log 2>&1 
+  echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
+fi
 
 # ------------------------------------------------------------------------------
 # REMOVE
@@ -665,23 +670,22 @@ fi
 
 # ------------------------------------------------------------------------------
 # Skype
+
 if [ "$INSTSKYPE" == "1" ]; then
   xinstall skype
 fi
 
 # ------------------------------------------------------------------------------
 # Spotify
+
 if [ "$INSTSPOTIFY" == "1" ]; then
-  echo -e "${GR}   installing Google Earth...${NC}"
-  gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 2>> xupdate.log
-  gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - >> xupdate.log 2>&1 
-  echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
-  apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
+  echo -e "${GR}   installing Spotify...${NC}"
   xinstall spotify-client
 fi
 
 # ------------------------------------------------------------------------------
 # Google Earth
+
 if [ "$INSTGEARTH" == "1" ]; then
   echo -e "${GR}   installing Google Earth...${NC}"
   if [ "$ARCH" == "64" ]; then
@@ -695,6 +699,7 @@ fi
 
 # ------------------------------------------------------------------------------
 # Numix
+
 if [ "$INSTNUMIX" == "1" ]; then
   echo -e "${GR}   installing Numix theme...${NC}"
   xinstall numix-folders
@@ -706,6 +711,7 @@ fi
 
 # ------------------------------------------------------------------------------
 # Sublime Text 3
+
 if [ "INSTSUBLIME" == "1" ]; then
   if [ "$ARCH" == "64" ]; then
     wget -q/opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
@@ -721,6 +727,7 @@ fi
 # Pipelight development has been discontinued, as Firefox is
 # retiring NPAPI support soon, and Silverlight is dead
 # see http://pipelight.net/
+
 if [ "$INSTPIPELIGHT" == "1" ]; then  
   echo -e "${GR}   installing Pipelight...${NC}"
   apt-get install -y -q --install-recommends pipelight-multi >> xupdate.log 2>&1 & spinner $!
@@ -733,6 +740,7 @@ fi
 
 # ------------------------------------------------------------------------------
 # Add Ublock Origin plugin to Firefox
+
 if [ "$INSTUBLOCK" == "1" ]; then
   echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
   echo -e "${RD}   NOTE: Plugin must be activated manually in Firefox${NC}"
@@ -744,6 +752,7 @@ fi
 # FRANZ a free messaging app.
 # Franz currently supports Slack, WhatsApp, WeChat, HipChat, Facebook Messenger, 
 # Telegram, Google Hangouts, GroupMe, Skype and many more.
+
 if [ "$INSTFRANZ" == "1" ]; then
   echo -e "${GR}   installing Franz...${NC}"
 # get latest version by parsing latest download page
@@ -789,6 +798,7 @@ fi
 # MOLOTOV French TV online viewer (only works in France)
 # It is impossible to obtain the latest version number
 # so it has to be manually added here. Grrr...
+
 if [ "$INSTMOLOTOV" == "1" ]; then
   echo -e "${GR}   installing Molotov...${NC}"
   # name of latest version
@@ -810,6 +820,7 @@ fi
 # HUBIC: 25Gb, command line only
 # PCLOUD: 10Gb, encryption is premium feature, native Linux client
 # DROPBOX: 2Gb, GUI client but xubuntu integration needs work
+
 if [ "$INSTMEGA" == "1" ]; then
   echo -e "${GR}   installing Mega...${NC}"
   xinstall libc-ares2
@@ -843,11 +854,13 @@ fi
 
 # ------------------------------------------------------------------------------
 # update system icon cache
+
 echo -e "${GR}Update icon cache...${NC}"
 for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>&1; done 
 
 # ------------------------------------------------------------------------------
 # add default desktop launchers
+
 echo -e "${GR}Install default desktop launchers...${NC}"
 cp /usr/share/applications/firefox.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
 cp /usr/share/applications/libreoffice-startcenter.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
