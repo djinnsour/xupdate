@@ -5,13 +5,13 @@
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
 #
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # INSTALLATION
 # cd to the folder that contains this script (xupdate.sh)
 # make the script executable with: chmod +x xupdate.sh
 # then run sudo ./xupdate.sh
 #
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Copyright 2017 Philip Wittamore http://www.wittamore.com
 # GNU General Public License
 # This program is free software: you can redistribute it and/or modify
@@ -26,23 +26,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # clear terminal
 clear
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ERROR LOGGING SETUP
 echo 'XUPDATE LOG' > xupdate.log
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # text colour
 
 GR='\033[1;32m'
 RD='\033[1;31m'
 NC='\033[0m'
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # Make sure only root can run our script
 
 if [ "$(id -u)" != "0" ]; then
@@ -50,19 +50,113 @@ if [ "$(id -u)" != "0" ]; then
  exit 1
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # TEST INTERNET CONNECTION
 
 echo -e "${GR}Testing internet connection...${NC}"
 wget -q --tries=10 --timeout=20 --spider http://google.com
 if [[ $? -eq 0 ]]; then
-  echo -e "${GR}Internet connection OK.${NC}"
+  echo "Internet connection OK" >> xupdate.log
 else
   echo -e "${RD}This script requires an internet connection, exiting.${NC}"
   exit 1
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
+# RAM TEST
+
+MEM=`free -g | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2`
+if (($MEM < 2)); then
+  echo "${RD}Insufficient RAM, exiting.${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# FIND USER AND GROUP THAT RAN su or sudo su
+
+XUSER=`logname`
+XGROUP=`id -ng $XUSER`
+
+# ------------------------------------------------------------------------------
+# GET ARCHITECTURE
+
+ARCH=`uname -m`
+
+# ------------------------------------------------------------------------------
+# shut up installers
+
+export DEBIAN_FRONTEND=noninteractive
+
+# ------------------------------------------------------------------------------
+# GET IP AND IS COUNTRY FRANCE
+
+IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
+FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
+if [ "$FR" == "1" ]; then
+  DESKTOP="Bureau"
+else
+  DESKTOP="Desktop"
+fi
+
+# ------------------------------------------------------------------------------
+# use apt-get and not apt in shell scripts
+
+xinstall () {
+  echo "   installing $1 "
+  apt-get install -q -y "$1" >> xupdate.log 2>&1 & spinner $!
+}
+xremove () {
+  echo "   removing $1 "
+  apt-get purge -q -y "$1" >> xupdate.log 2>&1 & spinner $!
+}
+
+# ------------------------------------------------------------------------------
+# XPI functions for installing firefox extensions
+
+EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
+EXTENSIONS_USER=`echo /home/$XUSER/.mozilla/firefox/*.default/extensions/`
+
+get_addon_id_from_xpi () { #path to .xpi file
+  addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
+  addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+  echo "$addon_id"
+}
+
+get_addon_name_from_xpi () { #path to .xpi file
+  addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
+  addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+  echo "$addon_name"
+}
+
+install_addon () {
+  xpi="${PWD}/${1}"
+  extensions_path=$2
+  new_filename=`get_addon_id_from_xpi $xpi`.xpi
+  new_filepath="${extensions_path}${new_filename}"
+  addon_name=`get_addon_name_from_xpi $xpi`
+  if [ -f "$new_filepath" ]; then
+    echo "File already exists: $new_filepath"
+    echo "Skipping installation for addon $addon_name."
+  else
+    cp "$xpi" "$new_filepath"
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Spinner
+
+spinner () { 
+local pid=$1 
+local delay=0.7
+while [ $(ps -eo pid | grep -c $pid) == "1" ]; do 
+  for i in '\' '|' '/' '-'  ; do 
+    printf ' [%c]\b\b\b\b' $i 
+    sleep $delay 
+  done 
+done 
+printf '\b\b\b\b'
+}
+
+# ------------------------------------------------------------------------------
 # SELECT OPTIONAL PACKAGES
 
 # install dialog if not available
@@ -104,6 +198,7 @@ do
     INSTMOLOTOV="1"
     ;;
     7)
+    INSTWINE="1"
     INSTPIPELIGHT="1"
     ;;
     8)
@@ -118,11 +213,7 @@ do
   esac
 done
 
-if [ "$INSTPIPELIGHT" == "1" ]; then
-  INSTWINE="1"
-fi
-
-# =============================================================
+# ------------------------------------------------------------------------------
 # START
 
 # clear terminal
@@ -130,90 +221,7 @@ clear
 echo -e "${GR}Starting Xubuntu 16.04 post-installation script.${NC}"
 echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 
-# --------------------------------------------------------------
-# FIND USER AND GROUP THAT RAN su or sudo su
-XUSER=`logname`
-XGROUP=`id -ng $XUSER`
-
-# --------------------------------------------------------------
-# GET ARCHITECTURE
-ARCH=`uname -m`
-
-# --------------------------------------------------------------
-# shut up installers
-export DEBIAN_FRONTEND=noninteractive
-
-# --------------------------------------------------------------
-# GET IP AND IS COUNTRY FRANCE
-IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
-FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
-if [ "$FR" == "1" ]; then
-  DESKTOP="Bureau"
-else
-  DESKTOP="Desktop"
-fi
-
-# --------------------------------------------------------------
-# use apt-get and not apt in shell scripts
-xinstall () {
-  echo "   installing $1 "
-  apt-get install -q -y "$1" >> xupdate.log 2>&1 & spinner $!
-}
-xremove () {
-  echo "   removing $1 "
-  apt-get purge -q -y "$1" >> xupdate.log 2>&1 & spinner $!
-}
-
-# --------------------------------------------------------------
-# XPI functions for installing firefox extensions
-
-EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
-EXTENSIONS_USER=`echo /home/$XUSER/.mozilla/firefox/*.default/extensions/`
-
-get_addon_id_from_xpi () { #path to .xpi file
-  addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
-  addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
-  echo "$addon_id"
-}
-
-get_addon_name_from_xpi () { #path to .xpi file
-  addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
-  addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
-  echo "$addon_name"
-}
-
-install_addon () {
-  xpi="${PWD}/${1}"
-  extensions_path=$2
-  new_filename=`get_addon_id_from_xpi $xpi`.xpi
-  new_filepath="${extensions_path}${new_filename}"
-  addon_name=`get_addon_name_from_xpi $xpi`
-  if [ -f "$new_filepath" ]; then
-    echo "File already exists: $new_filepath"
-    echo "Skipping installation for addon $addon_name."
-  else
-    cp "$xpi" "$new_filepath"
-  fi
-}
-
-# --------------------------------------------------------------
-# working spinner
-
-spinner () { 
-local pid=$1 
-local delay=0.7
-while [ $(ps -eo pid | grep -c $pid) == "1" ]; do 
-  for i in '\' '|' '/' '-'  ; do 
-    printf ' [%c]\b\b\b\b' $i 
-    sleep $delay 
-  done 
-done 
-printf '\b\b\b\b'
-}
-
-exit
-
-# =============================================================
+# ------------------------------------------------------------------------------
 # ADD REPOSITORIES
 
 echo -e "${GR}Adding repositories...${NC}"
@@ -243,7 +251,7 @@ if [ "$INSTPIPELIGHT" == "1" ]; then
   add-apt-repository ppa:pipelight/stable -y >> xupdate.log 2>&1 & spinner $!
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # REMOVE
 
 echo -e "${GR}Removing files...${NC}"
@@ -253,7 +261,7 @@ xremove parole
 # Shotwell viewer allows printing
 xremove ristretto
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # UPDATE & UPGRADE
 
 echo -e "${GR}Updating...${NC}"
@@ -261,25 +269,25 @@ apt-get -q -y update >> xupdate.log 2>&1 & spinner $!
 echo -e "${GR}Upgrading...${NC}"
 apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # TWEAKS
 
 echo -e "${GR}Tweaking the system...${NC}"
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # PRELOAD 
-# not for low memory systems, arbitrarily set to 2Gb
-MEM=`free | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2`
-if (($MEM > 2097152)); then
-  xinstall preload
-fi
 
-# --------------------------------------------------------------
+xinstall preload
+
+
+# ------------------------------------------------------------------------------
 # Enable ctrl+alt+backspace
+
 sed -i -e "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /etc/default/keyboard
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # IF SSD
+
 SSD=`cat /sys/block/sda/queue/rotational`
 if [ "$SSD" == "0" ]; then
   # preload
@@ -298,17 +306,20 @@ if [ "$SSD" == "0" ]; then
   update-grub >> xupdate.log 2>&1
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # cache for symbol tables. Qt / GTK programs will start a bit quicker and consume less memory
 # http://vasilisc.com/speedup_ubuntu_eng#compose_cache
+
 mkdir -p /home/$XUSER/.compose-cache
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Get rid of “Sorry, Ubuntu xx has experienced internal error”
+
 sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Memory management
+
 if [ "$SSD" == "0" ]; then
   echo "vm.swappiness=1" > /etc/sysctl.d/99-swappiness.conf
 else
@@ -317,14 +328,16 @@ fi
 echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-swappiness.conf
 sysctl -p /etc/sysctl.d/99-swappiness.conf >> xupdate.log 2>&1 
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Enable unattended security upgrades
+
 echo 'Unattended-Upgrade::Remove-Unused-Dependencies "true";' >> /etc/apt/apt.conf.d/50unattended-upgrades
 sed -i '/^\/\/.*-updates.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrades
 sed -i '/^\/\/.*-backports.*/s/^\/\//  /g' /etc/apt/apt.conf.d/50unattended-upgrades
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Set update periods
+
 rm /etc/apt/apt.conf.d/10periodic
 cat <<EOF > /etc/apt/apt.conf.d/10periodic
 APT::Periodic::Update-Package-Lists "1";
@@ -334,8 +347,9 @@ APT::Periodic::Unattended-Upgrade "1";
 EOF
 chmod 644 /etc/apt/apt.conf.d/10periodic
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Manage Laptop battery & overheating 
+
 LAPTOP=`laptop-detect; echo -e  $?`
 if [ "$LAPTOP" == "0" ]; then
   xinstall tlp 
@@ -351,8 +365,9 @@ if [ "$LAPTOP" == "0" ]; then
   systemctl enable tlp-sleep >> xupdate.log 2>&1
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Wifi power control off for faster wifi at a slight cost of battery
+
 WIFI=`lspci | egrep -c -i 'wifi|wlan|wireless'`
 if [ "$WIFI" == "1" ];
   then
@@ -362,8 +377,9 @@ if [ "$WIFI" == "1" ];
   chmod 755 /etc/pm/power.d/wireless
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Speed up gtk
+
 echo "gtk-menu-popup-delay = 0" > /home/$XUSER/.gtkrc-2.0
 echo "gtk-menu-popdown-delay = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-menu-bar-popup-delay = 0" >> /home/$XUSER/.gtkrc-2.0
@@ -372,23 +388,24 @@ echo "gtk-timeout-expand = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-timeout-initial = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-timeout-repeat = 0" >> /home/$XUSER/.gtkrc-2.0
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # FILE DEFAULTS
 # override rhythmbox parole
-# audio
+
 sed -i -e "s/rhythmbox.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 sed -i -e "s/parole.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # MEDIA INSERT
 # auto run inserted DVD's & CD's with VLC, and import photo's
+
 xfconf-query -c thunar-volman -p /autoplay-audio-cds/command -n -t string -s "vlc cdda:///dev/sr0"
 xfconf-query -c thunar-volman -p /autoplay-video-cds/command -n -t string -s "vlc dvd:///dev/sr0"
 xfconf-query -c thunar-volman -p /autophoto/command -n -t string -s "shotwell"
 # Set the default QT style
 echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # INSTALL
 
 echo -e "${GR}Package installation...${NC}"
@@ -461,6 +478,9 @@ if [ ! -d /etc/hal/fdi/policy ]; then
   mkdir -p /etc/hal/fdi/policy
 fi
 
+# ------------------------------------------------------------------------------
+# Compression
+
 echo -e "${GR}  Compression tools...${NC}"
 
 # compression
@@ -475,13 +495,17 @@ xinstall mpack
 xinstall arj 
 xinstall file-roller 
 
+
+# ------------------------------------------------------------------------------
+# Printing
+
 echo -e "${GR}  Printing...${NC}"
 
 # Printing
 xinstall cups-pdf 
 xinstall hplip-gui 
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # ACCESSORIES
 
 echo -e "${GR}  Accessories...${NC}"
@@ -500,7 +524,7 @@ xinstall typecatcher
 xinstall geany 
 xinstall geany-plugin* 
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # DESKTOP
 
 echo -e "${GR}  Desktop...${NC}"
@@ -520,7 +544,7 @@ Terminal=false
 Hidden=false
 EOF
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # GRAPHICS
 
 echo -e "${GR}  Graphics...${NC}"
@@ -536,7 +560,8 @@ xinstall pinta
 xinstall photoprint 
 
 xinstall shotwell
-# shotwell viewer replaces ristretto as it allows printing
+# Shotwell viewer replaces ristretto as it allows printing
+# supports JPEG, PNG, TIFF, BMP and RAW photo files as well as video files
 xdg-mime default shotwell-viewer.desktop image/jpeg
 xdg-mime default shotwell-viewer.desktop image/png
 xdg-mime default shotwell-viewer.desktop image/tiff
@@ -550,7 +575,7 @@ xinstall blender
 xinstall blender-data 
 xinstall glabels
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # AUDIO/VIDEO
 
 echo -e "${GR}  Audio and Video...${NC}"
@@ -566,11 +591,13 @@ xinstall mplayer
 xinstall gnome-mplayer 
 xinstall kazam
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # OFFICE
 # libreoffice - latest version from ppa
 
-echo -e "${GR}  Libreoffice...${NC}"
+echo -e "${GR}  Office...${NC}"
+
+xinstall pdfchain
 
 xinstall libreoffice 
 xinstall libreoffice-pdfimport
@@ -589,7 +616,7 @@ if [ "$LANGUAGE" == "fr_FR" ]; then
   unopkg add --shared -f $GOXT
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # GAMES
 
 echo -e "${GR}  Games...${NC}"
@@ -600,14 +627,14 @@ xinstall mahjongg
 xinstall aisleriot 
 xinstall pingus 
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # EDUCATION
 
 echo -e "${GR}  Education...${NC}"
 
 xinstall stellarium
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # INTERNET
 
 echo -e "${GR}  Internet...${NC}"
@@ -619,19 +646,19 @@ if [ "$ARCH" == "64" ]; then
   xinstall google-chrome-stable 
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # clean up
 
 echo -e "${GR}Cleaning up...${NC}"
 
 apt-get install -f -y >> xupdate.log 2>&1
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # SELECTED EXTRA APPLICATIONS
 
 echo -e "${GR}Installing selected extra applications...${NC}"
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # WINE 
 
 if [ "$INSTWINE" == "1" ]; then 
@@ -642,13 +669,13 @@ groupadd wine >> xupdate.log 2>&1
 adduser $XUSER wine >> xupdate.log 2>&1
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Skype
 if [ "$INSTSKYPE" == "1" ]; then
   xinstall skype
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Spotify
 if [ "$INSTSPOTIFY" == "1" ]; then
   echo -e "${GR}   installing Google Earth...${NC}"
@@ -659,7 +686,7 @@ if [ "$INSTSPOTIFY" == "1" ]; then
   xinstall spotify-client
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Google Earth
 if [ "$INSTGEARTH" == "1" ]; then
   echo -e "${GR}   installing Google Earth...${NC}"
@@ -672,7 +699,7 @@ if [ "$INSTGEARTH" == "1" ]; then
   fi
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Numix
 if [ "$INSTNUMIX" == "1" ]; then
   echo -e "${GR}   installing Numix theme...${NC}"
@@ -683,7 +710,7 @@ if [ "$INSTNUMIX" == "1" ]; then
   xinstall numix-plank-theme
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Sublime Text 3
 if [ "INSTSUBLIME" == "1" ]; then
   if [ "$ARCH" == "64" ]; then
@@ -695,7 +722,7 @@ if [ "INSTSUBLIME" == "1" ]; then
   fi
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Enable silverlight plugin in firefox
 # Pipelight development has been discontinued, as Firefox is
 # retiring NPAPI support soon, and Silverlight is dead
@@ -710,7 +737,7 @@ if [ "$INSTPIPELIGHT" == "1" ]; then
   sudo -u $XUSER pipelight-plugin -y --enable silverlight >> xupdate.log 2>&1
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Add Ublock Origin plugin to Firefox
 if [ "$INSTUBLOCK" == "1" ]; then
   echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
@@ -719,7 +746,7 @@ if [ "$INSTUBLOCK" == "1" ]; then
   install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM" >> xupdate.log 2>&1
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # FRANZ a free messaging app.
 # Franz currently supports Slack, WhatsApp, WeChat, HipChat, Facebook Messenger, 
 # Telegram, Google Hangouts, GroupMe, Skype and many more.
@@ -764,7 +791,7 @@ cat <<EOF > /home/$XUSER/.devilspie/franz.ds
 EOF
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # MOLOTOV French TV online viewer (only works in France)
 # It is impossible to obtain the latest version number
 # so it has to be manually added here. Grrr...
@@ -783,7 +810,7 @@ if [ "$INSTMOLOTOV" == "1" ]; then
   sudo -u $XUSER /opt/molotov/$MFILE &
 fi
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # CLOUD STORAGE
 # MEGA: 50Gb, end to end encryption, GUI Linux client
 # HUBIC: 25Gb, command line only
@@ -803,7 +830,7 @@ if [ "$INSTMEGA" == "1" ]; then
   fi
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # LOCAL FILES
 
 # Install extra fonts
@@ -817,15 +844,15 @@ if [ -d "fonts" ]; then
   fc-cache -fv > /dev/null
 fi
 
-# =============================================================
+# ------------------------------------------------------------------------------
 # FINISH
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # update system icon cache
 echo -e "${GR}Update icon cache...${NC}"
 for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>&1; done 
 
-# --------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # add default desktop launchers
 echo -e "${GR}Install default desktop launchers...${NC}"
 cp /usr/share/applications/firefox.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
