@@ -55,9 +55,7 @@ fi
 
 echo -e "${GR}Testing internet connection...${NC}"
 wget -q --tries=10 --timeout=20 --spider http://google.com
-if [[ $? -eq 0 ]]; then
-  echo "Internet connection OK" >> xupdate.log
-else
+if [[ ! $? -eq 0 ]]; then
   echo -e "${RD}This script requires an internet connection, exiting.${NC}"
   exit 1
 fi
@@ -98,6 +96,7 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# Installation functions
 # use apt-get and not apt in shell scripts
 
 xinstall () {
@@ -275,12 +274,6 @@ apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 echo -e "${GR}Tweaking the system...${NC}"
 
 # ------------------------------------------------------------------------------
-# PRELOAD 
-
-xinstall preload
-
-
-# ------------------------------------------------------------------------------
 # Enable ctrl+alt+backspace
 
 sed -i -e "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /etc/default/keyboard
@@ -433,6 +426,7 @@ apt-get install -f -y >> xupdate.log 2>&1
 
 echo -e "${GR}  System tools...${NC}"
 
+xinstall preload
 xinstall lsb-core
 xinstall joe 
 xinstall mc 
