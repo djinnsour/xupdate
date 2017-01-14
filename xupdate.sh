@@ -457,11 +457,12 @@ xinstall smartmontools
 xinstall gsmartcontrol 
 xinstall gnome-search-tool
 xinstall searchmonkey
-xinstall mono-complete 
 xinstall bleachbit 
 xinstall gtk2-engines 
 xinstall numlockx
 xinstall deja-dup
+xinstall inxi
+xinstall keepassx
 
 # Devilspie allows setting application wm defaults
 # for example: start Franz minimized (see below)
