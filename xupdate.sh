@@ -361,6 +361,14 @@ if [ "$LAPTOP" == "0" ]; then
   tlp start >> xupdate.log 2>&1
   systemctl enable tlp >> xupdate.log 2>&1
   systemctl enable tlp-sleep >> xupdate.log 2>&1
+cat <<EOF > /home/$XUSER/.config/autostart/syndaemon.desktop
+[Desktop Entry]
+Name=Syndaemon
+Exec=/usr/bin/syndaemon -i 1.0 -K -R -t
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+chmod 644 /home/$XUSER/.config/autostart/syndaemon.desktop
 fi
 
 # ------------------------------------------------------------------------------
@@ -461,15 +469,12 @@ xinstall devilspie
 mkdir -p /home/$XUSER/.devilspie
 cat <<EOF > /etc/xdg/autostart/devilspie.desktop
 [Desktop Entry]
-Encoding=UTF-8
-Type=Application
 Name=devilspie
-Comment=RunDevilspie
 Exec=/usr/bin/devilspie
-StartupNotify=false
-Terminal=false
-Hidden=false
+Type=Application
+X-GNOME-Autostart-enabled=true
 EOF
+chmod 644 /etc/xdg/autostart/devilspie.desktop
 
 # Tool for enabling write support on NTFS disks
 xinstall ntfs-config 
@@ -529,19 +534,14 @@ xinstall geany-plugin*
 echo -e "${GR}  Desktop...${NC}"
 
 xinstall plank
-cat <<EOF > /home/$XUSER/.config/autostart/Plank.desktop
+cat <<EOF > /home/$XUSER/.config/autostart/plank.desktop
 [Desktop Entry]
-Encoding=UTF-8
-Version=0.9.4
-Type=Application
 Name=Plank
-Comment=
 Exec=/usr/bin/plank
-OnlyShowIn=XFCE;
-StartupNotify=false
-Terminal=false
-Hidden=false
+Type=Application
+X-GNOME-Autostart-enabled=true
 EOF
+chmod 644 /home/$XUSER/.config/autostart/plank.desktop
 
 # ------------------------------------------------------------------------------
 # GRAPHICS
@@ -661,7 +661,7 @@ echo -e "${GR}Installing selected extra applications...${NC}"
 # WINE 
 
 if [ "$INSTWINE" == "1" ]; then 
-echo -e "${GR}  Wine...${NC}"
+echo "   installing Wine"
 apt-get install -y -q --install-recommends wine-staging >> xupdate.log 2>&1 & spinner $!
 xinstall winehq-staging
 groupadd wine >> xupdate.log 2>&1
@@ -672,6 +672,7 @@ fi
 # Skype
 
 if [ "$INSTSKYPE" == "1" ]; then
+  echo "   installing Skype"
   xinstall skype
 fi
 
@@ -679,7 +680,7 @@ fi
 # Spotify
 
 if [ "$INSTSPOTIFY" == "1" ]; then
-  echo -e "${GR}   installing Spotify...${NC}"
+  echo "   installing Spotify"
   xinstall spotify-client
 fi
 
@@ -687,7 +688,7 @@ fi
 # Google Earth
 
 if [ "$INSTGEARTH" == "1" ]; then
-  echo -e "${GR}   installing Google Earth...${NC}"
+  echo "   installing Google Earth"
   if [ "$ARCH" == "64" ]; then
     wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
     dpkg -i google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
@@ -701,7 +702,7 @@ fi
 # Numix
 
 if [ "$INSTNUMIX" == "1" ]; then
-  echo -e "${GR}   installing Numix theme...${NC}"
+  echo "   installing Numix theme"
   xinstall numix-folders
   xinstall numix-gtk-theme
   xinstall numix-icon-theme
@@ -713,6 +714,7 @@ fi
 # Sublime Text 3
 
 if [ "INSTSUBLIME" == "1" ]; then
+  echo "   installing Sublime Text"
   if [ "$ARCH" == "64" ]; then
     wget -q/opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
     dpkg -i sublime-text_build-3126_amd64.deb >> xupdate.log 2>&1 & spinner $!
@@ -729,7 +731,7 @@ fi
 # see http://pipelight.net/
 
 if [ "$INSTPIPELIGHT" == "1" ]; then  
-  echo -e "${GR}   installing Pipelight...${NC}"
+  echo "   installing Pipelight"
   apt-get install -y -q --install-recommends pipelight-multi >> xupdate.log 2>&1 & spinner $!
   chmod 777 /usr/lib/pipelight/
   chmod 666 /usr/lib/pipelight/*
@@ -742,7 +744,7 @@ fi
 # Add Ublock Origin plugin to Firefox
 
 if [ "$INSTUBLOCK" == "1" ]; then
-  echo -e "${GR}   installing Ublock Origin Firefox plugin...${NC}"
+  echo "   installing Ublock Origin Firefox plugin"
   echo -e "${RD}   NOTE: Plugin must be activated manually in Firefox${NC}"
   wget -q https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi >> xupdate.log 2>&1 & spinner $!
   install_addon addon-607454-latest.xpi "$EXTENSIONS_SYSTEM" >> xupdate.log 2>&1
@@ -754,7 +756,7 @@ fi
 # Telegram, Google Hangouts, GroupMe, Skype and many more.
 
 if [ "$INSTFRANZ" == "1" ]; then
-  echo -e "${GR}   installing Franz...${NC}"
+  echo "   installing Franz"
 # get latest version by parsing latest download page
 wget -q https://github.com/meetfranz/franz-app/releases/latest 
 mkdir -p /opt/franz
@@ -767,25 +769,28 @@ if [ "$ARCH" == "32" ]; then
   wget -qO- https://github.com/meetfranz$FRZ32 | tar zxf - -C /opt/franz/
 fi
 wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
-if [ ! -f /usr/share/applications/franz.desktop ]; then
-cat <<EOF > /usr/share/applications/Franz.desktop                                                                 
+# add desktop entry
+cat <<EOF > /usr/share/applications/franz.desktop                                                                 
 [Desktop Entry]
-Encoding=UTF-8
-Version=0.9.4
 Type=Application
 Name=Franz
 Comment=Franz is a free messaging app 
 Exec=/opt/franz/Franz
 Icon=/opt/franz/franz-icon.png
-OnlyShowIn=XFCE;
-StartupNotify=false
-Terminal=false
-Hidden=false
 Categories=Network;Messaging;
 EOF
-fi
+# add desktop shortcut
 cp /usr/share/applications/franz.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
-cp /usr/share/applications/franz.desktop /home/$XUSER/.config/autostart/ 2>> xupdate.log
+# autostart
+cat <<EOF > /usr/$XUSER/.config/autostart/franz.desktop                                                                 
+[Desktop Entry]
+Name=Franz
+Exec=/opt/franz/Franz
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+chmod 644 /usr/$XUSER/.config/autostart/franz.desktop
+# start up minimized (not an option so we use devilspie)
 cat <<EOF > /home/$XUSER/.devilspie/franz.ds
 (if  
 (is (application_name) "Franz")  
@@ -800,7 +805,7 @@ fi
 # so it has to be manually added here. Grrr...
 
 if [ "$INSTMOLOTOV" == "1" ]; then
-  echo -e "${GR}   installing Molotov...${NC}"
+  echo "   installing Molotov"
   # name of latest version
   MFILE='Molotov-1.1.2.AppImage'
   mkdir -p /opt/molotov
@@ -822,7 +827,7 @@ fi
 # DROPBOX: 2Gb, GUI client but xubuntu integration needs work
 
 if [ "$INSTMEGA" == "1" ]; then
-  echo -e "${GR}   installing Mega...${NC}"
+  echo "   installing Mega"
   xinstall libc-ares2
   xinstall libcrypto++9v5
   if [ "$ARCH" == "64" ]; then
