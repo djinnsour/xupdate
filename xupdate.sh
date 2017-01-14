@@ -361,6 +361,7 @@ if [ "$LAPTOP" == "0" ]; then
   tlp start >> xupdate.log 2>&1
   systemctl enable tlp >> xupdate.log 2>&1
   systemctl enable tlp-sleep >> xupdate.log 2>&1
+  # disable touchpad tapping and scrolling while typing
 cat <<EOF > /home/$XUSER/.config/autostart/syndaemon.desktop
 [Desktop Entry]
 Name=Syndaemon
@@ -467,6 +468,7 @@ xinstall keepassx
 # Devilspie allows setting application wm defaults
 # for example: start Franz minimized (see below)
 xinstall devilspie
+xinstall gdevilspie
 mkdir -p /home/$XUSER/.devilspie
 cat <<EOF > /etc/xdg/autostart/devilspie.desktop
 [Desktop Entry]
