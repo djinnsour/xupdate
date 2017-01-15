@@ -475,11 +475,10 @@ xinstall inxi
 xinstall keepassx
 
 # Devilspie allows setting application wm defaults
-# for example: start Franz minimized (see below)
 xinstall devilspie
 xinstall gdevilspie
 mkdir -p /home/$XUSER/.devilspie
-cat <<EOF > /etc/xdg/autostart/devilspie.desktop
+cat <<EOF > /home/philip/.config/autostart/devilspie.desktop
 [Desktop Entry]
 Name=devilspie
 Exec=/usr/bin/devilspie
@@ -732,7 +731,7 @@ fi
 if [ "INSTSUBLIME" == "1" ]; then
   echo "   installing Sublime Text"
   if [ "$ARCH" == "64" ]; then
-    wget -q/opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
+    wget -q /opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
     dpkg -i sublime-text_build-3126_amd64.deb >> xupdate.log 2>&1 & spinner $!
   else
     https://download.sublimetext.com/sublime-text_build-3126_i386.deb & spinner $!
@@ -774,7 +773,6 @@ fi
 if [ "$INSTFRANZ" == "1" ]; then
   echo "   installing Franz"
 # get latest version by parsing latest download page
-wget -q https://github.com/meetfranz/franz-app/releases/latest 
 mkdir -p /opt/franz
 if [ "$ARCH" == "64" ]; then
   FRZ64=`cat latest | grep Franz-linux-x64 | grep meetfranz | cut -f2 -d '"'`
@@ -806,13 +804,6 @@ Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
 chmod 644 /home/$XUSER/.config/autostart/franz.desktop
-# start up minimized (not an option so we use devilspie)
-cat <<EOF > /home/$XUSER/.devilspie/franz.ds
-(if  
-(is (application_name) "Franz")  
-(begin (minimize) )  
-)  
-EOF
 fi
 
 # ------------------------------------------------------------------------------
@@ -897,6 +888,7 @@ update-grub >> xupdate.log 2>&1
 
 # safely correct permissions because we are working as root
 chown -R $XUSER:$XGROUP /home/$XUSER
+chown -R $XUSER:$XGROUP /home/$XUSER/.*
 
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
