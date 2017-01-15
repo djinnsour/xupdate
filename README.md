@@ -22,6 +22,8 @@ HOWTO:
 
 # CHANGELOG
 
+- bugfixes
+
 **version 0.7**
 
 - added optional package selection using dialog
