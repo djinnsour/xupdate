@@ -662,6 +662,7 @@ echo -e "${GR}Installing selected extra applications...${NC}"
 
 if [ "$INSTPLANK" == "1" ]; then
 xinstall plank
+# add autostart
 cat <<EOF > /home/$XUSER/.config/autostart/plank.desktop
 [Desktop Entry]
 Name=Plank
@@ -670,6 +671,19 @@ Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
 chmod 644 /home/$XUSER/.config/autostart/plank.desktop
+# add plank settings to menu
+cat <<EOF > /home/$XUSER/.local/share/applications/plank-preferences.desktop
+[Desktop Entry]
+Name=Plank préférences
+Comment=Préférences du dock plank
+Exec=plank --preferences
+Icon=plank
+Terminal=false
+Type=Application
+Categories=Settings;
+StartupNotify=false
+EOF
+chmod 644 /home/$XUSER/.local/share/applications/plank-preferences.desktop
 fi
 
 # ------------------------------------------------------------------------------
