@@ -823,7 +823,7 @@ if [ "$INSTMOLOTOV" == "1" ]; then
     chmod +x /opt/molotov/$MFILE
   fi
   # launch molotov to install desktop entry
-  sudo -u $XUSER /opt/molotov/$MFILE &
+  sudo -u $XUSER /opt/molotov/$MFILE >> /dev/null 2>&1 &
 fi
 
 # ------------------------------------------------------------------------------
