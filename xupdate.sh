@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# xupdate.sh version 0.7
+# xupdate.sh version 0.7.1
+# sam. 14 janv. 2017 16:40:19 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
@@ -164,15 +165,16 @@ apt-get install dialog >> xupdate.log 2>&1
 cmd=(dialog --separate-output --checklist "Xupdate : Select optional packages" 20 70 10)
 
 options=(1 "Skype - proprietary messaging application " off \
-         2 "Ublock Origin - advert blocker for Firefox" off \
-         3 "Franz - a free messaging application" off \
-         4 "Google Earth" off \
+         2 "Wine - run windows apps (security risk)" off \
+         3 "Franz - free multi-client messaging application" off \
+         4 "Google Earth - planetary viewer" off \
          5 "Mega - 50Gb encrypted cloud storage" off \
-         6 "Molotov - a free French TV viewer" off \
-         7 "Pipelight - enable Silverlight in Firefox" off \
+         6 "Molotov - free French TV viewer" off \
+         7 "Pipelight - Silverlight plugin (security risk)" off \
          8 "Sublime Text - sophisticated text editor" off \
          9 "Numix theme - make your desktop beautiful" off \
-         10 "WINE - run certain windows applications" off)
+         10 "Plank - MacOs-like desktop menu" off \
+         11 "Ublock Origin - advert blocker for Firefox" off)
 
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 for choice in $choices 
@@ -182,7 +184,7 @@ do
     INSTSKYPE="1"
     ;;
     2)
-    INSTUBLOCK="1"
+    INSTWINE="1"
     ;;
     3)
     INSTFRANZ="1"
@@ -207,7 +209,10 @@ do
     INSTNUMIX="1"
     ;;
     10)
-    INSTWINE="1"
+    INSTPLANK="1"
+    ;;
+    11)
+    INSTUBLOCK="1"
     ;;
   esac
 done
@@ -298,8 +303,8 @@ if [ "$SSD" == "0" ]; then
   echo ' ' >> /etc/fstab
   # fstrim is configured weekly by default
   # grub
-  $FIND="GRUB_CMDLINE_LINUX_DEFAULT=\x22quiet splash\x22"
-  $REPL="GRUB_CMDLINE_LINUX_DEFAULT=\x22elevator=deadline quiet splash\x22"
+  FIND="GRUB_CMDLINE_LINUX_DEFAULT=\x22quiet splash\x22"
+  REPL="GRUB_CMDLINE_LINUX_DEFAULT=\x22elevator=deadline quiet splash\x22"
   sed -i "s/$FIND/$REPL/g" /etc/default/grub
   update-grub >> xupdate.log 2>&1
 fi
@@ -418,6 +423,10 @@ echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 echo -e "${GR}Package installation...${NC}"
 echo -e "${GR}  Base...${NC}"
 
+# required
+mkdir -p /home/$XUSER/.config/autostart
+mkdir -p /home/$XUSER/.local/share/applications
+
 # Due to a bug in ttf-mscorefonts-installer, this package must be downloaded from Debian 
 # and installed before the rest of the packages:
 echo -e "${GR}  Fixing ttf-mscorefonts bug...${NC}"
@@ -521,7 +530,6 @@ xinstall gedit
 xinstall gedit-plugins 
 xinstall gedit-developer-plugins  
 xinstall deja-dup 
-xinstall evince 
 xinstall xpdf
 xinstall rednotebook 
 xinstall calibre 
@@ -536,15 +544,6 @@ xinstall geany-plugin*
 
 echo -e "${GR}  Desktop...${NC}"
 
-xinstall plank
-cat <<EOF > /home/$XUSER/.config/autostart/plank.desktop
-[Desktop Entry]
-Name=Plank
-Exec=/usr/bin/plank
-Type=Application
-X-GNOME-Autostart-enabled=true
-EOF
-chmod 644 /home/$XUSER/.config/autostart/plank.desktop
 
 # ------------------------------------------------------------------------------
 # GRAPHICS
@@ -586,8 +585,7 @@ xinstall vlc
 xinstall handbrake
 xinstall devede 
 xinstall audacity 
-xinstall lame 
-xinstall libsox-fmt-all  
+xinstall lame  
 xinstall cheese 
 xinstall mplayer 
 xinstall gnome-mplayer 
@@ -607,14 +605,14 @@ xinstall libreoffice-nlpsolver
 xinstall libreoffice-gtk
 
 if [ "$LANGUAGE" == "fr_FR" ]; then
-  xinstall ibreoffice-l10n-fr 
+  xinstall libreoffice-l10n-fr 
   xinstall libreoffice-help-fr 
   xinstall hyphen-fr 
   # get the latest version by parsing telecharger.php
-  wget -q http://www.dicollecte.org/grammalecte/telecharger.php  >> xupdate.log 2>&1 & spinner $!
+  wget -q http://www.dicollecte.org/grammalecte/telecharger.php & spinner $!
   GOXTURL=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
   GOXT=G`echo $GOXTURL | cut -f2 -d 'G'`
-  wget -q $GOXTURL  >> xupdate.log 2>&1 & spinner $!
+  wget -q $GOXTURL  & spinner $!
   unopkg add --shared -f $GOXT
 fi
 
@@ -659,6 +657,21 @@ apt-get install -f -y >> xupdate.log 2>&1
 # SELECTED EXTRA APPLICATIONS
 
 echo -e "${GR}Installing selected extra applications...${NC}"
+
+# ------------------------------------------------------------------------------
+# PLANK
+
+if [ "$INSTPLANK" == "1" ]; then
+xinstall plank
+cat <<EOF > /home/$XUSER/.config/autostart/plank.desktop
+[Desktop Entry]
+Name=Plank
+Exec=/usr/bin/plank
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+chmod 644 /home/$XUSER/.config/autostart/plank.desktop
+fi
 
 # ------------------------------------------------------------------------------
 # WINE 
@@ -785,14 +798,14 @@ EOF
 # add desktop shortcut
 cp /usr/share/applications/franz.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
 # autostart
-cat <<EOF > /usr/$XUSER/.config/autostart/franz.desktop                                                                 
+cat <<EOF > /home/$XUSER/.config/autostart/franz.desktop                                                                 
 [Desktop Entry]
 Name=Franz
 Exec=/opt/franz/Franz
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
-chmod 644 /usr/$XUSER/.config/autostart/franz.desktop
+chmod 644 /home/$XUSER/.config/autostart/franz.desktop
 # start up minimized (not an option so we use devilspie)
 cat <<EOF > /home/$XUSER/.devilspie/franz.ds
 (if  
@@ -869,6 +882,7 @@ for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>
 # ------------------------------------------------------------------------------
 # add default desktop launchers
 
+echo "### Install desktop launchers." >> xupdate.log
 echo -e "${GR}Install default desktop launchers...${NC}"
 cp /usr/share/applications/firefox.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
 cp /usr/share/applications/libreoffice-startcenter.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
@@ -883,8 +897,6 @@ update-grub >> xupdate.log 2>&1
 
 # safely correct permissions because we are working as root
 chown -R $XUSER:$XGROUP /home/$XUSER
-
-xdotool key Alt+F11
 
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
