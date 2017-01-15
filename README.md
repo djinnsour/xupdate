@@ -23,6 +23,7 @@ HOWTO:
 # CHANGELOG
 
 - bugfixes
+- Plank is now optional with settings in menu
 
 **version 0.7**
 
