@@ -280,11 +280,14 @@ apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 echo -e "${GR}Tweaking the system...${NC}"
 
 # ------------------------------------------------------------------------------
-# Pulseaudio Bluetooth - missing in xubuntu 
+# Bluetooth Pulseaudio module
 
-echo -e "${GR}  Pulseaudio Bluetooth Module...${NC}"
-xinstall bluetooth >> xupdate.log 2>&1 & spinner $!
-xinstall pulseaudio-module-bluetooth >> xupdate.log 2>&1 & spinner $!
+BLUETOOTH=`hcitool dev | grep -c hci0`
+if [ "$BLUETOOTH" == "1" ]; then
+  echo -e "${GR}  Pulseaudio Bluetooth Module...${NC}"
+  xinstall bluetooth >> xupdate.log 2>&1 & spinner $!
+  xinstall pulseaudio-module-bluetooth >> xupdate.log 2>&1 & spinner $!
+fi
 
 # ------------------------------------------------------------------------------
 # Enable terminal drop down 
@@ -301,8 +304,8 @@ cat <<EOF > /home/$XUSER/.config/xfce4/terminal
 [Configuration]
 DropdownStatusIcon=FALSE
 DropdownWidth=100
-DropdownHeight=40
-DropdownOpacity=80
+DropdownHeight=50
+DropdownOpacity=90
 DropdownAlwaysShowTabs=FALSE
 FontName=DejaVu Sans Mono 11
 ShortcutsNoMnemonics=TRUE
@@ -492,6 +495,7 @@ xinstall indicator-cpufreq
 xinstall smartmontools 
 xinstall gsmartcontrol 
 xinstall gnome-search-tool
+xinstall gnome-disk-utility
 xinstall searchmonkey
 xinstall bleachbit 
 xinstall gtk2-engines 
