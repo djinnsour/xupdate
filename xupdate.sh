@@ -282,9 +282,8 @@ echo -e "${GR}Tweaking the system...${NC}"
 # ------------------------------------------------------------------------------
 # Bluetooth Pulseaudio module
 
-BLUETOOTH=`hcitool dev | grep -c hci0`
+BLUETOOTH=`hcitool dev | grep -c hci0` >> xupdate.log 2>&1 & spinner $!
 if [ "$BLUETOOTH" == "1" ]; then
-  echo -e "${GR}  Pulseaudio Bluetooth Module...${NC}"
   xinstall bluetooth >> xupdate.log 2>&1 & spinner $!
   xinstall pulseaudio-module-bluetooth >> xupdate.log 2>&1 & spinner $!
 fi
