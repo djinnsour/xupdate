@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # xupdate.sh version 0.7.2
-# mar. 17 janv. 2017 18:50:07 CET
+# mar. 17 janv. 2017 22:18:06 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
