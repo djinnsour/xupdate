@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# xupdate.sh version 0.7.1
+# xupdate.sh version 0.7.2
 # dim. 15 janv. 2017 18:41:03 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
@@ -74,6 +74,7 @@ fi
 
 XUSER=`logname`
 XGROUP=`id -ng $XUSER`
+DESKTOP=`su - $XUSER -c 'xdg-user-dir DESKTOP'`
 
 # ------------------------------------------------------------------------------
 # GET ARCHITECTURE
@@ -90,11 +91,6 @@ export DEBIAN_FRONTEND=noninteractive
 
 IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
 FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
-if [ "$FR" == "1" ]; then
-  DESKTOP="Bureau"
-else
-  DESKTOP="Desktop"
-fi
 
 # ------------------------------------------------------------------------------
 # Installation functions
@@ -282,6 +278,36 @@ apt-get dist-upgrade -q -y >> xupdate.log 2>&1 & spinner $!
 # TWEAKS
 
 echo -e "${GR}Tweaking the system...${NC}"
+
+# ------------------------------------------------------------------------------
+# Pulseaudio Bluetooth - missing in xubuntu 
+
+echo -e "${GR}  Pulseaudio Bluetooth Module...${NC}"
+xinstall bluetooth >> xupdate.log 2>&1 & spinner $!
+xinstall pulseaudio-module-bluetooth >> xupdate.log 2>&1 & spinner $!
+
+# ------------------------------------------------------------------------------
+# Enable terminal drop down 
+
+xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/F12" \
+	-s "xfce4-terminal --drop-down --hide-menubar --hide-borders --hide-toolbar" \
+	--create --type string
+
+# ------------------------------------------------------------------------------
+# Terminal Configuration
+
+mkdir -p /home/$XUSER/.config/xfce4/terminal
+cat <<EOF > /home/$XUSER/.config/xfce4/terminal
+[Configuration]
+DropdownStatusIcon=FALSE
+DropdownWidth=100
+DropdownHeight=40
+DropdownOpacity=80
+DropdownAlwaysShowTabs=FALSE
+FontName=DejaVu Sans Mono 11
+ShortcutsNoMnemonics=TRUE
+ShortcutsNoMenukey=TRUE
+EOF
 
 # ------------------------------------------------------------------------------
 # Enable ctrl+alt+backspace
@@ -807,8 +833,6 @@ Exec=/opt/franz/Franz
 Icon=/opt/franz/franz-icon.png
 Categories=Network;Messaging;
 EOF
-# add desktop shortcut
-cp /usr/share/applications/franz.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
 # autostart
 cat <<EOF > /home/$XUSER/.config/autostart/franz.desktop                                                                 
 [Desktop Entry]
@@ -889,9 +913,9 @@ for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>
 
 echo "### Install desktop launchers." >> xupdate.log
 echo -e "${GR}Install default desktop launchers...${NC}"
-cp /usr/share/applications/firefox.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
-cp /usr/share/applications/libreoffice-startcenter.desktop /home/$XUSER/$DESKTOP 2>> xupdate.log
-chmod 775 /home/$XUSER/$DESKTOP/*.desktop
+cp /usr/share/applications/firefox.desktop $DESKTOP 2>> xupdate.log
+cp /usr/share/applications/libreoffice-startcenter.desktop $DESKTOP 2>> xupdate.log
+chmod 775 $DESKTOP/*.desktop
 
 echo -e "${GR}Cleaning up...${NC}"
 
@@ -903,6 +927,10 @@ update-grub >> xupdate.log 2>&1
 # safely correct permissions because we are working as root
 chown -R $XUSER:$XGROUP /home/$XUSER
 chown -R $XUSER:$XGROUP /home/$XUSER/.*
+
+echo -e "${GR}Hardware information${NC}"
+
+inxi -b
 
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
