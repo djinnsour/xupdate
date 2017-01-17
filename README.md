@@ -22,6 +22,8 @@ HOWTO:
 
 # CHANGELOG
 
+- changed method of defining users DESKTOP (thanks to Seebz)
+- added drop down terminal upon F12 (thanks to Seebz)
 - bugfixes
 - Plank is now optional with settings in menu
 
