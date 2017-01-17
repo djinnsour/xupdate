@@ -307,7 +307,7 @@ DropdownWidth=100
 DropdownHeight=50
 DropdownOpacity=90
 DropdownAlwaysShowTabs=FALSE
-FontName=DejaVu Sans Mono 11
+FontName=DejaVu Sans Mono 10
 ShortcutsNoMnemonics=TRUE
 ShortcutsNoMenukey=TRUE
 EOF
@@ -430,21 +430,21 @@ echo "gtk-timeout-initial = 0" >> /home/$XUSER/.gtkrc-2.0
 echo "gtk-timeout-repeat = 0" >> /home/$XUSER/.gtkrc-2.0
 
 # ------------------------------------------------------------------------------
-# FILE DEFAULTS
+# Set the default QT style
+echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
+
+# ------------------------------------------------------------------------------
 # override rhythmbox parole
 
 sed -i -e "s/rhythmbox.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 sed -i -e "s/parole.desktop/vlc.desktop/g" /usr/share/applications/defaults.list
 
 # ------------------------------------------------------------------------------
-# MEDIA INSERT
 # auto run inserted DVD's & CD's with VLC, and import photo's
 
 xfconf-query -c thunar-volman -p /autoplay-audio-cds/command -n -t string -s "vlc cdda:///dev/sr0"
 xfconf-query -c thunar-volman -p /autoplay-video-cds/command -n -t string -s "vlc dvd:///dev/sr0"
 xfconf-query -c thunar-volman -p /autophoto/command -n -t string -s "shotwell"
-# Set the default QT style
-echo "QT_STYLE_OVERRIDE=gtk+" >> /etc/environment
 
 # ------------------------------------------------------------------------------
 # INSTALL
