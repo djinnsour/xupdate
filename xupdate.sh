@@ -787,7 +787,7 @@ if [ "$ARCH" == "x86_64" ] && [ "$INSTKRITA" == "1" ]; then
   wget -qP /opt/krita http://download.kde.org/stable/krita/3.1.1/krita-3.1.1-x86_64.appimage  & spinner $!
   chmod a+x /opt/krita/*.appimage
   # add icon
-  wget -qP /opt/krita https://github.com/captainsensible/xupdate/blob/master/krita-icon.png & spinner $!
+  wget -qP /opt/krita http://www.wittamore.com/images/krita-icon.png & spinner $!
   # add desktop entry
 cat <<EOF > /usr/share/applications/krita.desktop
 [Desktop Entry]
