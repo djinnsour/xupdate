@@ -22,10 +22,14 @@ HOWTO:
 
 # CHANGELOG
 
+**version 0.8**
+
+- added Krita in optional packages
+- added Fuse for appimages
 - changed method of defining users DESKTOP (thanks to Seebz)
 - added drop down terminal upon F12 (thanks to Seebz)
-- bugfixes
 - Plank is now optional with settings in menu
+- bugfixes
 
 **version 0.7**
 
