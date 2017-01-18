@@ -23,6 +23,7 @@ HOWTO:
 # CHANGELOG
 
 - added conky
+- added cowsay (thanks to wertperch)
 
 **version 0.8**
 
