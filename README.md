@@ -22,8 +22,10 @@ HOWTO:
 
 # CHANGELOG
 
+- syntax corrected with shellcheck
 - added conky
 - added cowsay (thanks to wertperch)
+- bug fixes
 
 **version 0.8**
 
