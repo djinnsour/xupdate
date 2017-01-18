@@ -1016,7 +1016,7 @@ echo -e "${GR}Hardware information${NC}"
 inxi -b
 
 echo
-cowsay "well that was fun!"
+cowsay "You dirty rotten swines, you! You have deaded me again!"
 echo
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
