@@ -41,7 +41,17 @@ echo 'XUPDATE LOG' > xupdate.log
 
 GR='\033[1;32m'
 RD='\033[1;31m'
+BL='\033[1;34m'
 NC='\033[0m'
+
+# ------------------------------------------------------------------------------
+# only 16.04 LTS - guys, lts versions only so I can drink beer in between
+
+RELEASE=`lsb_release -s -r`
+if [ ! "$RELEASE" == "16.04" ]; then
+  echo -e "${RD}This script is for v16.04 LTS only, exiting.${NC}"
+  exit 1
+fi
 
 # ------------------------------------------------------------------------------
 # Make sure only root can run our script
@@ -521,7 +531,7 @@ xinstall conky
 cat <<EOF > /home/$XUSER/.config/autostart/conky.desktop
 [Desktop Entry]
 Name=Conky
-Exec=/usr/bin/conky
+Exec=conky -d -p 10
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
@@ -562,7 +572,7 @@ xinstall numlockx
 xinstall deja-dup
 xinstall inxi
 xinstall keepassx
-
+xinstall cowsay
 
 # ------------------------------------------------------------------------------
 # Compression
@@ -1005,7 +1015,11 @@ echo -e "${GR}Hardware information${NC}"
 
 inxi -b
 
-echo -e "${GR}######## FINISHED ########${NC}"
+echo
+
+cowsay "well that was fun!"
+
+echo -e "${BL}######## FINISHED ########${NC}"
 echo
 echo -e "${RD}Reboot now!${NC}"
 echo
