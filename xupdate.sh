@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# xupdate.sh version 0.8
-# mer. 18 janv. 2017 10:15:27 CET
+# xupdate.sh version 0.8.1
+# mer. 18 janv. 2017 23:04:47 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
@@ -41,13 +41,13 @@ echo 'XUPDATE LOG' > xupdate.log
 
 GR='\033[1;32m'
 RD='\033[1;31m'
-BL='\033[1;34m'
+#BL='\033[1;34m'
 NC='\033[0m'
 
 # ------------------------------------------------------------------------------
 # only 16.04 LTS - guys, lts versions only so I can drink beer in between
 
-RELEASE=`lsb_release -s -r`
+RELEASE=$(lsb_release -s -r)
 if [ ! "$RELEASE" == "16.04" ]; then
   echo -e "${RD}This script is for v16.04 LTS only, exiting.${NC}"
   exit 1
@@ -74,22 +74,22 @@ fi
 # ------------------------------------------------------------------------------
 # RAM TEST
 
-MEM=`free -g | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2`
-if (($MEM < 2)); then
+MEM=$(free -g | grep "Mem:" | tr -s ' ' | cut -d ' ' -f2)
+if ((MEM < 2)); then
   echo "${RD}Insufficient RAM, exiting.${NC}"
 fi
 
 # ------------------------------------------------------------------------------
 # FIND USER AND GROUP THAT RAN su or sudo su
 
-XUSER=`logname`
-XGROUP=`id -ng $XUSER`
-DESKTOP=`su - $XUSER -c 'xdg-user-dir DESKTOP'`
+XUSER=$(logname)
+XGROUP=$(id -ng "$XUSER")
+DESKTOP=$(su - "$XUSER" -c 'xdg-user-dir DESKTOP')
 
 # ------------------------------------------------------------------------------
 # GET ARCHITECTURE
 
-ARCH=`uname -m`
+ARCH=$(uname -m)
 
 # ------------------------------------------------------------------------------
 # shut up installers
@@ -99,8 +99,8 @@ export DEBIAN_FRONTEND=noninteractive
 # ------------------------------------------------------------------------------
 # GET IP AND IS COUNTRY FRANCE
 
-IP=`wget -qO- checkip.dyndns.org | sed -e 's/.*Current P Address: //' -e 's/<.*$//'`
-FR=`wget -qO- ipinfo.io/$IP | grep -c '"country": "FR"'`
+#IP=$(wget -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//')
+#FR=$(wget -qO- "ipinfo.io/$IP" | grep -c '"country": "FR"')
 
 # ------------------------------------------------------------------------------
 # Installation functions
@@ -119,26 +119,26 @@ xremove () {
 # XPI functions for installing firefox extensions
 
 EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
-EXTENSIONS_USER=`echo /home/$XUSER/.mozilla/firefox/*.default/extensions/`
+#EXTENSIONS_USER=$(echo "/home/$XUSER/.mozilla/firefox/*.default/extensions/")
 
 get_addon_id_from_xpi () { #path to .xpi file
-  addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
-  addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+  addon_id_line=$(unzip -p "$1" install.rdf | egrep '<em:id>' -m 1)
+  addon_id=$(echo "$addon_id_line" | sed "s/.*>\(.*\)<.*/\1/")
   echo "$addon_id"
 }
 
 get_addon_name_from_xpi () { #path to .xpi file
-  addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
-  addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+  addon_name_line=$(unzip -p "$1" install.rdf | egrep '<em:name>' -m 1)
+  addon_name=$(echo "$addon_name_line" | sed "s/.*>\(.*\)<.*/\1/")
   echo "$addon_name"
 }
 
 install_addon () {
   xpi="${PWD}/${1}"
   extensions_path=$2
-  new_filename=`get_addon_id_from_xpi $xpi`.xpi
+  new_filename=$(get_addon_id_from_xpi "$xpi").xpi
   new_filepath="${extensions_path}${new_filename}"
-  addon_name=`get_addon_name_from_xpi $xpi`
+  addon_name=$(get_addon_name_from_xpi "$xpi")
   if [ -f "$new_filepath" ]; then
     echo "File already exists: $new_filepath"
     echo "Skipping installation for addon $addon_name."
@@ -150,16 +150,19 @@ install_addon () {
 # ------------------------------------------------------------------------------
 # Spinner
 
-spinner () { 
-local pid=$1 
-local delay=0.7
-while [ $(ps -eo pid | grep -c $pid) == "1" ]; do 
-  for i in '\' '|' '/' '-'  ; do 
-    printf ' [%c]\b\b\b\b' $i 
-    sleep $delay 
-  done 
-done 
-printf '\b\b\b\b'
+spinner()
+{
+    local pid=$1
+    local delay=0.75
+    local spinstr='|/-\'
+    while ps --pid "$pid" &>/dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
 }
 
 # ------------------------------------------------------------------------------
@@ -183,7 +186,7 @@ options=(1 "Skype - proprietary messaging application " off \
          11 "Plank - MacOs-like desktop menu" off \
          12 "Ublock Origin - advert blocker for Firefox" off)
 
-choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+choices=$("${cmd[@]}" "${options[@]}" >/dev/tty 2>&1)
 for choice in $choices 
 do
   case $choice in
@@ -234,6 +237,11 @@ done
 clear
 echo -e "${GR}Starting Xubuntu 16.04 post-installation script.${NC}"
 echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
+
+# ------------------------------------------------------------------------------
+# ADD REQUIRED FOLDERS
+mkdir -p "/home/$XUSER/.config/autostart"
+mkdir -p "/home/$XUSER/.local/share/applications"
 
 # ------------------------------------------------------------------------------
 # ADD REPOSITORIES
@@ -296,7 +304,7 @@ echo -e "${GR}Tweaking the system...${NC}"
 # ------------------------------------------------------------------------------
 # Bluetooth Pulseaudio module
 
-BLUETOOTH=`hcitool dev | grep -c hci0` >> xupdate.log 2>&1 & spinner $!
+BLUETOOTH=$(hcitool dev | grep -c hci0)
 if [ "$BLUETOOTH" == "1" ]; then
   xinstall bluetooth >> xupdate.log 2>&1 & spinner $!
   xinstall pulseaudio-module-bluetooth >> xupdate.log 2>&1 & spinner $!
@@ -312,8 +320,8 @@ xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/F12" \
 # ------------------------------------------------------------------------------
 # Terminal Configuration
 
-mkdir -p /home/$XUSER/.config/xfce4/terminal
-cat <<EOF > /home/$XUSER/.config/xfce4/terminal
+mkdir -p "/home/$XUSER/.config/xfce4/terminal"
+cat <<EOF > "/home/$XUSER/.config/xfce4/terminal/terminalrc"
 [Configuration]
 DropdownStatusIcon=FALSE
 DropdownWidth=100
@@ -333,16 +341,18 @@ sed -i -e "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /
 # ------------------------------------------------------------------------------
 # IF SSD
 
-SSD=`cat /sys/block/sda/queue/rotational`
+SSD=$(cat /sys/block/sda/queue/rotational)
 if [ "$SSD" == "0" ]; then
   # preload
   if [ -f "/etc/preload.conf" ]; then
     sed -i -e "s/sortstrategy = 3/sortstrategy = 0/g" /etc/preload.conf
   fi
   # fstab - keep tmp folder and logs in ram (desktop only)
-  echo 'tmpfs /tmp     tmpfs defaults,noexec,nosuid,noatime,size=20% 0 0' >> /etc/fstab
-  echo 'tmpfs /var/log tmpfs defaults,noexec,nosuid,noatime,mode=0755,size=20% 0 0' >> /etc/fstab
-  echo ' ' >> /etc/fstab
+  {
+  echo 'tmpfs /tmp     tmpfs defaults,noexec,nosuid,noatime,size=20% 0 0'
+  echo 'tmpfs /var/log tmpfs defaults,noexec,nosuid,noatime,mode=0755,size=20% 0 0'
+  echo ' ' 
+  } >> /etc/fstab
   # fstrim is configured weekly by default
   # grub
   FIND="GRUB_CMDLINE_LINUX_DEFAULT=\x22quiet splash\x22"
@@ -355,7 +365,7 @@ fi
 # cache for symbol tables. Qt / GTK programs will start a bit quicker and consume less memory
 # http://vasilisc.com/speedup_ubuntu_eng#compose_cache
 
-mkdir -p /home/$XUSER/.compose-cache
+mkdir -p "/home/$XUSER/.compose-cache"
 
 # ------------------------------------------------------------------------------
 # Get rid of “Sorry, Ubuntu xx has experienced internal error”
@@ -395,37 +405,39 @@ chmod 644 /etc/apt/apt.conf.d/10periodic
 # ------------------------------------------------------------------------------
 # Manage Laptop battery & overheating 
 
-LAPTOP=`laptop-detect; echo -e  $?`
+LAPTOP=$(laptop-detect; echo -e  $?)
 if [ "$LAPTOP" == "0" ]; then
   xinstall tlp 
   xinstall tlp-rdw 
   # THINKPAD ONLY
-  VENDOR=`cat /sys/devices/virtual/dmi/id/chassis_vendor`
+  VENDOR=$(cat /sys/devices/virtual/dmi/id/chassis_vendor)
   if [ "$VENDOR" == "LENOVO" ]; then
     xinstall tp-smapi-dkms 
     xinstall acpi-call-dkms 
   fi
-  tlp start >> xupdate.log 2>&1
-  systemctl enable tlp >> xupdate.log 2>&1
-  systemctl enable tlp-sleep >> xupdate.log 2>&1
+  {
+  tlp start
+  systemctl enable tlp
+  systemctl enable tlp-sleep
+  } >> xupdate.log 2>&1
   # disable touchpad tapping and scrolling while typing
-cat <<EOF > /home/$XUSER/.config/autostart/syndaemon.desktop
+cat <<EOF > "/home/$XUSER/.config/autostart/syndaemon.desktop"
 [Desktop Entry]
 Name=Syndaemon
 Exec=/usr/bin/syndaemon -i 1.0 -K -R -t
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
-chmod 644 /home/$XUSER/.config/autostart/syndaemon.desktop
+chmod 644 "/home/$XUSER/.config/autostart/syndaemon.desktop"
 fi
 
 # ------------------------------------------------------------------------------
 # Wifi power control off for faster wifi at a slight cost of battery
 
-WIFI=`lspci | egrep -c -i 'wifi|wlan|wireless'`
+WIFI=$(lspci | egrep -c -i 'wifi|wlan|wireless')
 if [ "$WIFI" == "1" ];
   then
-  WIFINAME=`iwgetid | cut -d ' ' -f 1`
+  WIFINAME=$(iwgetid | cut -d ' ' -f 1)
   echo '#!/bin/sh' >  /etc/pm/power.d/wireless
   echo "/sbin/iwconfig $WIFINAME power off" >> /etc/pm/power.d/wireless
   chmod 755 /etc/pm/power.d/wireless
@@ -433,14 +445,15 @@ fi
 
 # ------------------------------------------------------------------------------
 # Speed up gtk
-
-echo "gtk-menu-popup-delay = 0" > /home/$XUSER/.gtkrc-2.0
-echo "gtk-menu-popdown-delay = 0" >> /home/$XUSER/.gtkrc-2.0
-echo "gtk-menu-bar-popup-delay = 0" >> /home/$XUSER/.gtkrc-2.0
-echo "gtk-enable-animations = 0" >> /home/$XUSER/.gtkrc-2.0
-echo "gtk-timeout-expand = 0" >> /home/$XUSER/.gtkrc-2.0
-echo "gtk-timeout-initial = 0" >> /home/$XUSER/.gtkrc-2.0
-echo "gtk-timeout-repeat = 0" >> /home/$XUSER/.gtkrc-2.0
+{
+echo "gtk-menu-popup-delay = 0" 
+echo "gtk-menu-popdown-delay = 0"
+echo "gtk-menu-bar-popup-delay = 0"
+echo "gtk-enable-animations = 0"
+echo "gtk-timeout-expand = 0"
+echo "gtk-timeout-initial = 0"
+echo "gtk-timeout-repeat = 0"
+} > "/home/$XUSER/.gtkrc-2.0"
 
 # ------------------------------------------------------------------------------
 # Set the default QT style
@@ -464,11 +477,6 @@ xfconf-query -c thunar-volman -p /autophoto/command -n -t string -s "shotwell"
 
 echo -e "${GR}Package installation...${NC}"
 echo -e "${GR}  Base...${NC}"
-
-# ------------------------------------------------------------------------------
-# required
-mkdir -p /home/$XUSER/.config/autostart
-mkdir -p /home/$XUSER/.local/share/applications
 
 # ------------------------------------------------------------------------------
 # Due to a bug in ttf-mscorefonts-installer, this package must be downloaded from Debian 
@@ -495,14 +503,14 @@ dpkg-reconfigure libdvd-pkg >> xupdate.log 2>&1 & spinner $!
 echo -e "${GR}  Fuse...${NC}"
 xinstall fuse
 modprobe fuse
-usermod -a -G fuse $XUSER
+usermod -a -G fuse "$XUSER"
 
 # ------------------------------------------------------------------------------
 # Devilspie allows setting application wm defaults
 echo -e "${GR}  Devilspie...${NC}"
 xinstall devilspie
 xinstall gdevilspie
-mkdir -p /home/$XUSER/.devilspie
+mkdir -p "/home/$XUSER/.devilspie"
 cat <<EOF > /home/philip/.config/autostart/devilspie.desktop
 [Desktop Entry]
 Name=devilspie
@@ -522,13 +530,13 @@ fi
 
 # ------------------------------------------------------------------------------
 # Conky
-wget -qP /home/$XUSER http://www.wittamore.com/xupdate/.conkyrc & spinner $!
+wget -qP "/home/$XUSER" "http://www.wittamore.com/xupdate/.conkyrc" & spinner $!
 mkdir -p /usr/share/fonts/truetype/conky
 wget -qP /usr/share/fonts/truetype/conky http://www.wittamore.com/xupdate/ge-inspira.ttf & spinner $!
 chmod -R 755 /usr/share/fonts/truetype/conky
 fc-cache -fv > /dev/null & spinner $!
 xinstall conky
-cat <<EOF > /home/$XUSER/.config/autostart/conky.desktop
+cat <<EOF > "/home/$XUSER/.config/autostart/conky.desktop"
 [Desktop Entry]
 Name=Conky
 Exec=conky -d -p 10
@@ -579,7 +587,6 @@ xinstall cowsay
 
 echo -e "${GR}  Compression tools...${NC}"
 
-# compression
 xinstall unace 
 xinstall rar 
 xinstall unrar 
@@ -597,7 +604,6 @@ xinstall file-roller
 
 echo -e "${GR}  Printing...${NC}"
 
-# Printing
 xinstall cups-pdf 
 xinstall hplip-gui 
 
@@ -689,11 +695,11 @@ if [ "$LANGUAGE" == "fr_FR" ]; then
   xinstall libreoffice-help-fr 
   xinstall hyphen-fr 
   # get the latest version by parsing telecharger.php
-  wget -q http://www.dicollecte.org/grammalecte/telecharger.php & spinner $!
-  GOXTURL=`cat telecharger.php | grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" | cut -f4 -d '"'`
-  GOXT=G`echo $GOXTURL | cut -f2 -d 'G'`
-  wget -q $GOXTURL  & spinner $!
-  unopkg add --shared -f $GOXT
+  wget -q "http://www.dicollecte.org/grammalecte/telecharger.php" & spinner $!
+  GOXTURL=$(grep "http://www.dicollecte.org/grammalecte/oxt/Grammalecte-fr" < telecharger.php | cut -f4 -d '"')
+  GOXT=G$(echo "$GOXTURL" | cut -f2 -d 'G')
+  wget -q "$GOXTURL"  & spinner $!
+  unopkg add --shared -f "$GOXT"
 fi
 
 # ------------------------------------------------------------------------------
@@ -751,9 +757,9 @@ Exec=/usr/bin/plank
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
-chmod 644 /home/$XUSER/.config/autostart/plank.desktop
+chmod 644 "/home/$XUSER/.config/autostart/plank.desktop"
 # add plank settings to menu
-cat <<EOF > /home/$XUSER/.local/share/applications/plank-preferences.desktop
+cat <<EOF > "/home/$XUSER/.local/share/applications/plank-preferences.desktop"
 [Desktop Entry]
 Name=Plank préférences
 Comment=Préférences du dock plank
@@ -764,7 +770,7 @@ Type=Application
 Categories=Settings;
 StartupNotify=false
 EOF
-chmod 644 /home/$XUSER/.local/share/applications/plank-preferences.desktop
+chmod 644 "/home/$XUSER/.local/share/applications/plank-preferences.desktop"
 fi
 
 # ------------------------------------------------------------------------------
@@ -775,7 +781,7 @@ echo "   installing Wine"
 apt-get install -y -q --install-recommends wine-staging >> xupdate.log 2>&1 & spinner $!
 xinstall winehq-staging
 groupadd wine >> xupdate.log 2>&1
-adduser $XUSER wine >> xupdate.log 2>&1
+adduser "$XUSER" wine >> xupdate.log 2>&1
 fi
 
 # ------------------------------------------------------------------------------
@@ -848,12 +854,14 @@ if [ "$INSTNUMIX" == "1" ]; then
   xinstall numix-icon-theme
   xinstall numix-icon-theme-circle 
   xinstall numix-plank-theme
+  xfconf-query -c xsettings -p /Net/ThemeName -s "Numix"
+  xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
 fi
 
 # ------------------------------------------------------------------------------
 # Sublime Text 3
 
-if [ "INSTSUBLIME" == "1" ]; then
+if [ "$INSTSUBLIME" == "1" ]; then
   echo "   installing Sublime Text"
   if [ "$ARCH" == "x86_64" ]; then
     wget -q /opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
@@ -876,8 +884,8 @@ if [ "$INSTPIPELIGHT" == "1" ]; then
   chmod 777 /usr/lib/pipelight/
   chmod 666 /usr/lib/pipelight/*
   pipelight-plugin --update -y  >> xupdate.log 2>&1
-  sudo -u $XUSER pipelight-plugin -y --create-mozilla-plugins >> xupdate.log 2>&1
-  sudo -u $XUSER pipelight-plugin -y --enable silverlight >> xupdate.log 2>&1
+  sudo -u "$XUSER" pipelight-plugin -y --create-mozilla-plugins | tee -a xupdate.log /dev/null
+  sudo -u "$XUSER" pipelight-plugin -y --enable silverlight | tee -a xupdate.log /dev/null
 fi
 
 # ------------------------------------------------------------------------------
@@ -900,11 +908,11 @@ if [ "$INSTFRANZ" == "1" ]; then
 # get latest version by parsing latest download page
 mkdir -p /opt/franz
 if [ "$ARCH" == "x86_64" ]; then
-  FRZ64=`cat latest | grep Franz-linux-x64 | grep meetfranz | cut -f2 -d '"'`
-  wget -qO- https://github.com$FRZ64 | tar zxf - -C /opt/franz/  & spinner $!
+  FRZ64=$( grep Franz-linux-x64 < latest | grep meetfranz | cut -f2 -d '"')
+  wget -qO- "https://github.com$FRZ64" | tar zxf - -C /opt/franz/  & spinner $!
 else
-  FRZ32=`cat latest | grep Franz-linux-ia32 | grep meetfranz | cut -f2 -d '"'`
-  wget -qO- https://github.com/meetfranz$FRZ32 | tar zxf - -C /opt/franz/
+  FRZ32=$( grep Franz-linux-ia32 < latest | grep meetfranz | cut -f2 -d '"')
+  wget -qO- "https://github.com/meetfranz$FRZ32" | tar zxf - -C /opt/franz/
 fi
 wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
 # add desktop entry
@@ -925,7 +933,7 @@ Exec=/opt/franz/Franz
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
-chmod 644 /home/$XUSER/.config/autostart/franz.desktop
+chmod 644 "/home/$XUSER/.config/autostart/franz.desktop"
 fi
 
 # ------------------------------------------------------------------------------
@@ -940,12 +948,12 @@ if [ "$INSTMOLOTOV" == "1" ]; then
   mkdir -p /opt/molotov
   xinstall libatk-adaptor 
   xinstall libgail-common 
-  wget -qP /opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/$MFILE & spinner $!
+  wget -qP "/opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/$MFILE" & spinner $!
   if [ -f "/opt/molotov/$MFILE" ]; then
-    chmod a+x /opt/molotov/$MFILE
+    chmod a+x "/opt/molotov/$MFILE"
   fi
   # launch molotov to install desktop entry
-  sudo -u $XUSER /opt/molotov/$MFILE >> /dev/null 2>&1 &
+  sudo -u "$XUSER" "/opt/molotov/$MFILE" >> /dev/null 2>&1 &
 fi
 
 # ------------------------------------------------------------------------------
@@ -989,35 +997,39 @@ fi
 # update system icon cache
 
 echo -e "${GR}Update icon cache...${NC}"
-for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q $d >> xupdate.log 2>&1; done 
+for d in /usr/share/icons/*; do gtk-update-icon-cache -f -q "$d" >> xupdate.log 2>&1; done 
 
 # ------------------------------------------------------------------------------
 # add default desktop launchers
 
 echo "### Install desktop launchers." >> xupdate.log
 echo -e "${GR}Install default desktop launchers...${NC}"
-cp /usr/share/applications/firefox.desktop $DESKTOP 2>> xupdate.log
-cp /usr/share/applications/libreoffice-startcenter.desktop $DESKTOP 2>> xupdate.log
-chmod 775 $DESKTOP/*.desktop
+cp /usr/share/applications/firefox.desktop "$DESKTOP" 2>> xupdate.log
+cp /usr/share/applications/libreoffice-startcenter.desktop "$DESKTOP" 2>> xupdate.log
+chmod -f 775 "$DESKTOP/*.desktop"
 
 echo -e "${GR}Cleaning up...${NC}"
 
-apt-get install -f -y >> xupdate.log 2>&1  & spinner $!
-apt-get autoremove >> xupdate.log 2>&1
-apt-get clean >> xupdate.log 2>&1
+{ 
+apt-get install -f -y 
+apt-get autoremove 
+apt-get clean 
+} >> xupdate.log 2>&1 & spinner $!
+
 update-grub >> xupdate.log 2>&1
 
 # safely correct permissions because we are working as root
-chown -R $XUSER:$XGROUP /home/$XUSER
-chown -R $XUSER:$XGROUP /home/$XUSER/.*
+chown -Rf "$XUSER:$XGROUP" "/home/$XUSER"
+chown -Rf "$XUSER:$XGROUP" "/home/$XUSER/.[^.]*"
 
 echo -e "${GR}Hardware information${NC}"
 
 inxi -b
 
 echo
-cowsay "You dirty rotten swines, you! You have deaded me again!"
+/usr/games/cowsay "You dirty rotten swines, you! You have deaded me again!"
 echo
+
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
 echo -e "${RD}Reboot now!${NC}"
