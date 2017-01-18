@@ -240,7 +240,7 @@ add-apt-repository ppa:linrunner/tlp -y >> xupdate.log 2>&1 & spinner $!
 add-apt-repository ppa:libreoffice/ppa -y >> xupdate.log 2>&1 & spinner $!
 
 # Google Chrome (not supported on 32bit)
-if [ "$ARCH" == "64" ]; then
+if [ "$ARCH" == "x86_64" ]; then
   wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - & spinner $!
   echo "deb https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 fi
@@ -684,7 +684,7 @@ echo -e "${GR}  Internet...${NC}"
 xinstall deluge-torrent
 xinstall filezilla  
 
-if [ "$ARCH" == "64" ]; then
+if [ "$ARCH" == "x86_64" ]; then
   xinstall google-chrome-stable 
 fi
 
@@ -761,7 +761,7 @@ fi
 
 if [ "$INSTGEARTH" == "1" ]; then
   echo "   installing Google Earth"
-  if [ "$ARCH" == "64" ]; then
+  if [ "$ARCH" == "x86_64" ]; then
     wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
     dpkg -i google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
   else
@@ -773,7 +773,7 @@ fi
 # ------------------------------------------------------------------------------
 # Krita
 
-if [ "$ARCH" == "64" ]; then
+if [ "$ARCH" == "x86_64" ]; then
 if [ "$INSTKRITA" == "1" ]; then
   echo "   installing Krita"
   mkdir -p /opt/krita
@@ -811,7 +811,7 @@ fi
 
 if [ "INSTSUBLIME" == "1" ]; then
   echo "   installing Sublime Text"
-  if [ "$ARCH" == "64" ]; then
+  if [ "$ARCH" == "x86_64" ]; then
     wget -q /opt/sublime https://download.sublimetext.com/sublime-text_build-3126_amd64.deb & spinner $!
     dpkg -i sublime-text_build-3126_amd64.deb >> xupdate.log 2>&1 & spinner $!
   else
@@ -855,7 +855,7 @@ if [ "$INSTFRANZ" == "1" ]; then
   echo "   installing Franz"
 # get latest version by parsing latest download page
 mkdir -p /opt/franz
-if [ "$ARCH" == "64" ]; then
+if [ "$ARCH" == "x86_64" ]; then
   FRZ64=`cat latest | grep Franz-linux-x64 | grep meetfranz | cut -f2 -d '"'`
   wget -qO- https://github.com$FRZ64 | tar zxf - -C /opt/franz/  & spinner $!
 fi
@@ -916,7 +916,7 @@ if [ "$INSTMEGA" == "1" ]; then
   echo "   installing Mega"
   xinstall libc-ares2
   xinstall libcrypto++9v5
-  if [ "$ARCH" == "64" ]; then
+  if [ "$ARCH" == "x86_64" ]; then
     wget -q https://mega.nz/linux/MEGAsync/xUbuntu_16.04/amd64/megasync-xUbuntu_16.04_amd64.deb & spinner $!
     dpkg -i megasync-xUbuntu_16.04_amd64.deb >> xupdate.log 2>&1 & spinner $!
   fi
