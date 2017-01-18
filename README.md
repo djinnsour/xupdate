@@ -29,6 +29,7 @@ HOWTO:
 - changed method of defining users DESKTOP (thanks to Seebz)
 - added drop down terminal upon F12 (thanks to Seebz)
 - Plank is now optional with settings in menu
+- added Terminal defaults
 - bugfixes
 
 **version 0.7**
