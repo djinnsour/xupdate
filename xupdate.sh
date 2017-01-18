@@ -762,6 +762,14 @@ fi
 if [ "$INSTGEARTH" == "1" ]; then
   echo "   installing Google Earth"
   if [ "$ARCH" == "x86_64" ]; then
+    xinstall libfontconfig1:i386 
+    xinstall libx11-6:i386 
+    xinstall libxrender1:i386 
+    xinstall libxext6:i386 
+    xinstall libgl1-mesa-glx:i386 
+    xinstall libglu1-mesa:i386 
+    xinstall libglib2.0-0:i386 
+    xinstall libsm6:i386
     wget -q http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
     dpkg -i google-earth-stable_current_amd64.deb >> xupdate.log 2>&1 & spinner $!
   else
