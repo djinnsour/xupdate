@@ -773,8 +773,7 @@ fi
 # ------------------------------------------------------------------------------
 # Krita
 
-if [ "$ARCH" == "x86_64" ]; then
-if [ "$INSTKRITA" == "1" ]; then
+if [ "$ARCH" == "x86_64" ] && [ "$INSTKRITA" == "1" ]; then
   echo "   installing Krita"
   mkdir -p /opt/krita
   wget -qP /opt/krita http://download.kde.org/stable/krita/3.1.1/krita-3.1.1-x86_64.appimage  & spinner $!
@@ -791,7 +790,6 @@ Exec=/opt/krita/krita-3.1.1-x86_64.appimage
 Icon=/opt/krita/krita-icon.png
 Categories=Graphics;2DGraphics;
 EOF
-fi
 fi
 
 # ------------------------------------------------------------------------------
