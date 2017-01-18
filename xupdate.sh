@@ -455,10 +455,12 @@ xfconf-query -c thunar-volman -p /autophoto/command -n -t string -s "shotwell"
 echo -e "${GR}Package installation...${NC}"
 echo -e "${GR}  Base...${NC}"
 
+# ------------------------------------------------------------------------------
 # required
 mkdir -p /home/$XUSER/.config/autostart
 mkdir -p /home/$XUSER/.local/share/applications
 
+# ------------------------------------------------------------------------------
 # Due to a bug in ttf-mscorefonts-installer, this package must be downloaded from Debian 
 # and installed before the rest of the packages:
 echo -e "${GR}  Fixing ttf-mscorefonts bug...${NC}"
@@ -466,15 +468,18 @@ xinstall cabextract
 wget -q http://ftp.fr.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 dpkg -i ttf-mscorefonts-installer_3.6_all.deb >> xupdate.log 2>&1 & spinner $!
 
+# ------------------------------------------------------------------------------
 echo -e "${GR}  Applications with restricted copyright...${NC}"
 xinstall xubuntu-restricted-extras
 ubuntu-drivers autoinstall >> xupdate.log 2>&1 & spinner $!
 
+# ------------------------------------------------------------------------------
 # libdvdcss
 echo -e "${GR}  Libdvdcss...${NC}"
 xinstall libdvd-pkg
 dpkg-reconfigure libdvd-pkg >> xupdate.log 2>&1 & spinner $!
 
+# ------------------------------------------------------------------------------
 # AppImages require FUSE to run. 
 # Filesystem in Userspace (FUSE) is a system that lets non-root users mount filesystems.
 echo -e "${GR}  Fuse...${NC}"
@@ -482,6 +487,7 @@ xinstall fuse
 modprobe fuse
 usermod -a -G fuse $XUSER
 
+# ------------------------------------------------------------------------------
 # Devilspie allows setting application wm defaults
 echo -e "${GR}  Devilspie...${NC}"
 xinstall devilspie
@@ -496,6 +502,7 @@ X-GNOME-Autostart-enabled=true
 EOF
 chmod 644 /etc/xdg/autostart/devilspie.desktop
 
+# ------------------------------------------------------------------------------
 # Tool for enabling write support on NTFS disks
 echo -e "${GR}  NTFS Config...${NC}"
 xinstall ntfs-config 
@@ -503,9 +510,30 @@ if [ ! -d /etc/hal/fdi/policy ]; then
   mkdir -p /etc/hal/fdi/policy
 fi
 
+# ------------------------------------------------------------------------------
+# Conky
+wget -qP /home/$XUSER http://www.wittamore.com/xupdate/.conkyrc & spinner $!
+mkdir -p /usr/share/fonts/truetype/conky
+wget -qP /usr/share/fonts/truetype/conky http://www.wittamore.com/xupdate/ge-inspira.ttf & spinner $!
+chmod -R 755 /usr/share/fonts/truetype/conky
+fc-cache -fv > /dev/null & spinner $!
+xinstall conky
+cat <<EOF > /home/$XUSER/.config/autostart/conky.desktop
+[Desktop Entry]
+Name=Conky
+Exec=/usr/bin/conky
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+
+# ------------------------------------------------------------------------------
+
 echo -e "${GR}  Cleaning up...${NC}"
 
 apt-get install -f -y >> xupdate.log 2>&1
+
+# ------------------------------------------------------------------------------
+# system tools
 
 echo -e "${GR}  System tools...${NC}"
 
@@ -938,10 +966,10 @@ fi
 
 if [ -d "fonts" ]; then
   echo -e "${GR}Installing TTF fonts from folder 'fonts'...${NC}"
-  mkdir /usr/share/fonts/truetype/xttf
+  mkdir -p /usr/share/fonts/truetype/xttf
   cp -r fonts/*.ttf /usr/share/fonts/truetype/xttf 2>> /dev/null  & spinner $!
   chmod -R 755 /usr/share/fonts/truetype/xttf
-  fc-cache -fv > /dev/null
+  fc-cache -fv > /dev/null & spinner $!
 fi
 
 # ------------------------------------------------------------------------------
