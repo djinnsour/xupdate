@@ -22,6 +22,8 @@ HOWTO:
 
 # CHANGELOG
 
+- added conky
+
 **version 0.8**
 
 - added Krita in optional packages
