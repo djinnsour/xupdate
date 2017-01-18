@@ -856,8 +856,7 @@ mkdir -p /opt/franz
 if [ "$ARCH" == "x86_64" ]; then
   FRZ64=`cat latest | grep Franz-linux-x64 | grep meetfranz | cut -f2 -d '"'`
   wget -qO- https://github.com$FRZ64 | tar zxf - -C /opt/franz/  & spinner $!
-fi
-if [ "$ARCH" == "32" ]; then
+else
   FRZ32=`cat latest | grep Franz-linux-ia32 | grep meetfranz | cut -f2 -d '"'`
   wget -qO- https://github.com/meetfranz$FRZ32 | tar zxf - -C /opt/franz/
 fi
@@ -917,8 +916,7 @@ if [ "$INSTMEGA" == "1" ]; then
   if [ "$ARCH" == "x86_64" ]; then
     wget -q https://mega.nz/linux/MEGAsync/xUbuntu_16.04/amd64/megasync-xUbuntu_16.04_amd64.deb & spinner $!
     dpkg -i megasync-xUbuntu_16.04_amd64.deb >> xupdate.log 2>&1 & spinner $!
-  fi
-  if [ "$ARCH" == "32" ]; then
+  else
     wget -q https://mega.nz/linux/MEGAsync/xUbuntu_16.04/i386/megasync-xUbuntu_16.04_i386.deb & spinner $!
     dpkg -i megasync-xUbuntu_16.04_amd64.deb >> xupdate.log 2>&1 & spinner $!
   fi
