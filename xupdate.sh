@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# xupdate.sh version 0.7.2
-# mar. 17 janv. 2017 22:18:06 CET
+# xupdate.sh version 0.8
+# mer. 18 janv. 2017 05:08:24 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
@@ -164,13 +164,14 @@ options=(1 "Skype - proprietary messaging application " off \
          2 "Wine - run windows apps (security risk)" off \
          3 "Franz - free multi-client messaging application" off \
          4 "Google Earth - planetary viewer" off \
-         5 "Mega - 50Gb encrypted cloud storage" off \
-         6 "Molotov - free French TV viewer" off \
-         7 "Pipelight - Silverlight plugin (security risk)" off \
-         8 "Sublime Text - sophisticated text editor" off \
-         9 "Numix theme - make your desktop beautiful" off \
-         10 "Plank - MacOs-like desktop menu" off \
-         11 "Ublock Origin - advert blocker for Firefox" off)
+         5 "Krita - Krita is a free professional painting program" off \
+         6 "Mega - 50Gb encrypted cloud storage" off \
+         7 "Molotov - free French TV viewer" off \
+         8 "Pipelight - Silverlight plugin (security risk)" off \
+         9 "Sublime Text - sophisticated text editor" off \
+         10 "Numix theme - make your desktop beautiful" off \
+         11 "Plank - MacOs-like desktop menu" off \
+         12 "Ublock Origin - advert blocker for Firefox" off)
 
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 for choice in $choices 
@@ -189,25 +190,28 @@ do
     INSTGEARTH="1"
     ;;
     5)
-    INSTMEGA="1"
+    INSTKRITA="1"
     ;;
     6)
-    INSTMOLOTOV="1"
+    INSTMEGA="1"
     ;;
     7)
+    INSTMOLOTOV="1"
+    ;;
+    8)
     INSTWINE="1"
     INSTPIPELIGHT="1"
     ;;
-    8)
+    9)
     INSTSUBLIME="1"
     ;;
-    9)
+    10)
     INSTNUMIX="1"
     ;;
-    10)
+    11)
     INSTPLANK="1"
     ;;
-    11)
+    12)
     INSTUBLOCK="1"
     ;;
   esac
@@ -471,6 +475,34 @@ echo -e "${GR}  Libdvdcss...${NC}"
 xinstall libdvd-pkg
 dpkg-reconfigure libdvd-pkg >> xupdate.log 2>&1 & spinner $!
 
+# AppImages require FUSE to run. 
+# Filesystem in Userspace (FUSE) is a system that lets non-root users mount filesystems.
+echo -e "${GR}  Fuse...${NC}"
+xinstall fuse
+modprobe fuse
+usermod -a -G fuse $XUSER
+
+# Devilspie allows setting application wm defaults
+echo -e "${GR}  Devilspie...${NC}"
+xinstall devilspie
+xinstall gdevilspie
+mkdir -p /home/$XUSER/.devilspie
+cat <<EOF > /home/philip/.config/autostart/devilspie.desktop
+[Desktop Entry]
+Name=devilspie
+Exec=/usr/bin/devilspie
+Type=Application
+X-GNOME-Autostart-enabled=true
+EOF
+chmod 644 /etc/xdg/autostart/devilspie.desktop
+
+# Tool for enabling write support on NTFS disks
+echo -e "${GR}  NTFS Config...${NC}"
+xinstall ntfs-config 
+if [ ! -d /etc/hal/fdi/policy ]; then
+  mkdir -p /etc/hal/fdi/policy
+fi
+
 echo -e "${GR}  Cleaning up...${NC}"
 
 apt-get install -f -y >> xupdate.log 2>&1
@@ -503,24 +535,6 @@ xinstall deja-dup
 xinstall inxi
 xinstall keepassx
 
-# Devilspie allows setting application wm defaults
-xinstall devilspie
-xinstall gdevilspie
-mkdir -p /home/$XUSER/.devilspie
-cat <<EOF > /home/philip/.config/autostart/devilspie.desktop
-[Desktop Entry]
-Name=devilspie
-Exec=/usr/bin/devilspie
-Type=Application
-X-GNOME-Autostart-enabled=true
-EOF
-chmod 644 /etc/xdg/autostart/devilspie.desktop
-
-# Tool for enabling write support on NTFS disks
-xinstall ntfs-config 
-if [ ! -d /etc/hal/fdi/policy ]; then
-  mkdir -p /etc/hal/fdi/policy
-fi
 
 # ------------------------------------------------------------------------------
 # Compression
@@ -757,6 +771,30 @@ if [ "$INSTGEARTH" == "1" ]; then
 fi
 
 # ------------------------------------------------------------------------------
+# Krita
+
+if [ "$ARCH" == "64" ]; then
+if [ "$INSTKRITA" == "1" ]; then
+  echo "   installing Krita"
+  mkdir -p /opt/krita
+  wget -qP /opt/krita http://download.kde.org/stable/krita/3.1.1/krita-3.1.1-x86_64.appimage  & spinner $!
+  chmod a+x /opt/krita/*.appimage
+  # add icon
+  wget -qP /opt/krita https://github.com/captainsensible/xupdate/blob/master/krita-icon.png & spinner $!
+  # add desktop entry
+cat <<EOF > /usr/share/applications/krita.desktop
+[Desktop Entry]
+Type=Application
+Name=Krita
+Comment=Krita is a free painting app
+Exec=/opt/krita/krita-3.1.1-x86_64.appimage
+Icon=/opt/krita/krita-icon.png
+Categories=Graphics;2DGraphics;
+EOF
+fi
+fi
+
+# ------------------------------------------------------------------------------
 # Numix
 
 if [ "$INSTNUMIX" == "1" ]; then
@@ -861,7 +899,7 @@ if [ "$INSTMOLOTOV" == "1" ]; then
   xinstall libgail-common 
   wget -qP /opt/molotov https://desktop-auto-upgrade.s3.amazonaws.com/linux/$MFILE & spinner $!
   if [ -f "/opt/molotov/$MFILE" ]; then
-    chmod +x /opt/molotov/$MFILE
+    chmod a+x /opt/molotov/$MFILE
   fi
   # launch molotov to install desktop entry
   sudo -u $XUSER /opt/molotov/$MFILE >> /dev/null 2>&1 &
