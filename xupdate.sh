@@ -1016,9 +1016,8 @@ echo -e "${GR}Hardware information${NC}"
 inxi -b
 
 echo
-
 cowsay "well that was fun!"
-
+echo
 echo -e "${GR}######## FINISHED ########${NC}"
 echo
 echo -e "${RD}Reboot now!${NC}"
