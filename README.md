@@ -30,6 +30,7 @@ HOWTO:
 - added drop down terminal upon F12 (thanks to Seebz)
 - Plank is now optional with settings in menu
 - added Terminal defaults
+- fixed i386 package dependancies for 64 bit google earth
 - bugfixes
 
 **version 0.7**
