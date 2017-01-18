@@ -1019,7 +1019,7 @@ echo
 
 cowsay "well that was fun!"
 
-echo -e "${BL}######## FINISHED ########${NC}"
+echo -e "${GR}######## FINISHED ########${NC}"
 echo
 echo -e "${RD}Reboot now!${NC}"
 echo
