@@ -162,11 +162,11 @@ cmd=(dialog --separate-output --checklist "Xupdate : Select optional packages" 2
 
 options=(1 "Skype - proprietary messaging application " off \
          2 "Wine - run windows apps (security risk)" off \
-         3 "Franz - free multi-client messaging application" off \
+         3 "Franz - multi-client messaging application" off \
          4 "Google Earth - planetary viewer" off \
-         5 "Krita - Krita is a free professional painting program" off \
+         5 "Krita - professional painting program" off \
          6 "Mega - 50Gb encrypted cloud storage" off \
-         7 "Molotov - free French TV viewer" off \
+         7 "Molotov - French TV viewer" off \
          8 "Pipelight - Silverlight plugin (security risk)" off \
          9 "Sublime Text - sophisticated text editor" off \
          10 "Numix theme - make your desktop beautiful" off \
