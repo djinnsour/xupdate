@@ -511,14 +511,14 @@ echo -e "${GR}  Devilspie...${NC}"
 xinstall devilspie
 xinstall gdevilspie
 mkdir -p "/home/$XUSER/.devilspie"
-cat <<EOF > /home/philip/.config/autostart/devilspie.desktop
+cat <<EOF > "/home/$XUSER/.config/autostart/devilspie.desktop"
 [Desktop Entry]
 Name=devilspie
 Exec=/usr/bin/devilspie
 Type=Application
 X-GNOME-Autostart-enabled=true
 EOF
-chmod 644 /etc/xdg/autostart/devilspie.desktop
+chmod 644 "/home/$XUSER/.config/autostart/devilspie.desktop"
 
 # ------------------------------------------------------------------------------
 # Tool for enabling write support on NTFS disks
