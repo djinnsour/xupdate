@@ -809,7 +809,6 @@ fi
 # WINE 
 
 if [ "$INSTWINE" == "1" ]; then 
-echo "   installing Wine"
 apt-get install -y -q --install-recommends wine-staging >> xupdate.log 2>&1 & spinner $!
 xinstall winehq-staging
 groupadd wine >> xupdate.log 2>&1
@@ -820,7 +819,6 @@ fi
 # Skype
 
 if [ "$INSTSKYPE" == "1" ]; then
-  echo "   installing Skype"
   xinstall skype
 fi
 
@@ -828,7 +826,6 @@ fi
 # Spotify
 
 if [ "$INSTSPOTIFY" == "1" ]; then
-  echo "   installing Spotify"
   xinstall spotify-client
 fi
 
@@ -935,6 +932,7 @@ if [ "$INSTFRANZ" == "1" ]; then
   echo "   installing Franz"
 # get latest version by parsing latest download page
 mkdir -p /opt/franz
+wget https://github.com/meetfranz/franz-app/releases/latest
 if [ "$ARCH" == "x86_64" ]; then
   FRZ64=$( grep Franz-linux-x64 < latest | grep meetfranz | cut -f2 -d '"')
   wget -qO- "https://github.com$FRZ64" | tar zxf - -C /opt/franz/  & spinner $!
