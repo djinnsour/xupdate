@@ -534,7 +534,8 @@ dpkg-reconfigure libdvd-pkg >> xupdate.log 2>&1 & spinner $!
 echo -e "${GR}  Fuse...${NC}"
 xinstall fuse
 modprobe fuse
-usermod -a -G fuse "$XUSER"
+groupadd fuse
+usermod -G fuse "$XUSER"
 
 # ------------------------------------------------------------------------------
 # Devilspie allows setting application wm defaults
