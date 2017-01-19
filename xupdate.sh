@@ -41,7 +41,7 @@ echo 'XUPDATE LOG' > xupdate.log
 
 GR='\033[1;32m'
 RD='\033[1;31m'
-#BL='\033[1;34m'
+BL='\033[1;34m'
 NC='\033[0m'
 
 # ------------------------------------------------------------------------------
@@ -97,6 +97,10 @@ ARCH=$(uname -m)
 export DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------------------------------
+# 
+LAPTOP=$(laptop-detect; echo -e  $?)
+
+# ------------------------------------------------------------------------------
 # GET IP AND IS COUNTRY FRANCE
 
 #IP=$(wget -qO- checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//')
@@ -107,12 +111,12 @@ export DEBIAN_FRONTEND=noninteractive
 # use apt-get and not apt in shell scripts
 
 xinstall () {
-  echo "   installing $1 "
-  apt-get install -q -y "$1" >> xupdate.log 2>&1 & spinner $!
+  echo -e "${BL}   installing $1 ${NC}"
+  apt-get install -q -y "$1" >> xupdate.log 2>&1 || echo -e "${RD}$1 not installed${NC}"
 }
 xremove () {
-  echo "   removing $1 "
-  apt-get purge -q -y "$1" >> xupdate.log 2>&1 & spinner $!
+  echo -e "${BL}   removing $1 ${NC}"
+  apt-get purge -q -y "$1" >> xupdate.log 2>&1 || echo -e "${RD}$1 not removed${NC}"
 }
 
 # ------------------------------------------------------------------------------
@@ -173,7 +177,7 @@ apt-get install dialog >> xupdate.log 2>&1
 
 cmd=(dialog --separate-output --checklist "Xupdate : Select optional packages" 20 70 10)
 
-options=(1 "Skype - proprietary messaging application " off \
+options=(1 "Skype - proprietary messaging application" off \
          2 "Wine - run windows apps (security risk)" off \
          3 "Franz - multi-client messaging application" off \
          4 "Google Earth - planetary viewer" off \
@@ -186,55 +190,68 @@ options=(1 "Skype - proprietary messaging application " off \
          11 "Plank - MacOs-like desktop menu" off \
          12 "Ublock Origin - advert blocker for Firefox" off)
 
-choices=$("${cmd[@]}" "${options[@]}" >/dev/tty 2>&1)
+choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+clear
+echo -e "${BL}You have chosen these optional packages:"
 for choice in $choices 
 do
   case $choice in
     1)
     INSTSKYPE="1"
+    echo -n "Skype, "
     ;;
     2)
     INSTWINE="1"
+    echo -n "Wine, "
     ;;
     3)
     INSTFRANZ="1"
+    echo -n "Franz, "
     ;;
     4)
     INSTGEARTH="1"
+    echo -n "Google Earth, "
     ;;
     5)
     INSTKRITA="1"
+    echo -n "Krita, "
     ;;
     6)
     INSTMEGA="1"
+    echo -n "Mega Sync, "
     ;;
     7)
     INSTMOLOTOV="1"
+    echo -n "Molotov, "
     ;;
     8)
     INSTWINE="1"
     INSTPIPELIGHT="1"
+    echo -n "Pipelight, "
     ;;
     9)
     INSTSUBLIME="1"
+    echo -n "Sublime Text, "
     ;;
     10)
     INSTNUMIX="1"
+    echo -n "Numix Theme, "
     ;;
     11)
     INSTPLANK="1"
+    echo -n "Plank, "
     ;;
     12)
     INSTUBLOCK="1"
+    echo -n "Ublock Origin, "
     ;;
   esac
 done
+echo -e "...${NC}"
 
 # ------------------------------------------------------------------------------
 # START
 
-# clear terminal
-clear
 echo -e "${GR}Starting Xubuntu 16.04 post-installation script.${NC}"
 echo -e "${GR}Please be patient and don't exit until you see FINISHED.${NC}"
 
@@ -248,33 +265,48 @@ mkdir -p "/home/$XUSER/.local/share/applications"
 
 echo -e "${GR}Adding repositories...${NC}"
 
-# ubuntu partner (skype etc.)
-add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner" -y >> xupdate.log 2>&1  & spinner $!
-
-# Linrunner - supercedes laptop-tools and is indispensable on laptops
-add-apt-repository ppa:linrunner/tlp -y >> xupdate.log 2>&1 & spinner $!
-
 # Libreoffice - latest version
-add-apt-repository ppa:libreoffice/ppa -y >> xupdate.log 2>&1 & spinner $!
+echo -e "${BL}     Libreoffice repository...${NC}"
+add-apt-repository ppa:libreoffice/ppa -y  >> xupdate.log 2>&1 & spinner $!
 
 # Google Chrome (not supported on 32bit)
 if [ "$ARCH" == "x86_64" ]; then
+  echo -e "${BL}     Google repository...${NC}"
   wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - & spinner $!
   echo "deb https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 fi
 
+# Linrunner - supercedes laptop-tools and is indispensable on laptops
+if [ "$LAPTOP" == "0" ]; then
+echo -e "${BL}     Linrunner repository...${NC}"
+add-apt-repository ppa:linrunner/tlp -y >> xupdate.log 2>&1 & spinner $!
+fi
+
+if [ "$INSTSKYPE" == "1" ]; then
+# ubuntu partner (skype etc.)
+echo -e "${BL}     Skype repository...${NC}"
+add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner" -y >> xupdate.log 2>&1 & spinner $!
+fi
+
 if [ "$INSTNUMIX" == "1" ]; then
+  echo -e "${BL}     Numix repository...${NC}"
   apt-add-repository ppa:numix/ppa -y >> xupdate.log 2>&1 & spinner $!
 fi
+
 if [ "$INSTWINE" == "1" ]; then
+  echo -e "${BL}     Wine repository...${NC}"
   add-apt-repository ppa:wine/wine-builds -y >> xupdate.log 2>&1 & spinner $!
 fi
+
 if [ "$INSTPIPELIGHT" == "1" ]; then
+  echo -e "${BL}     Pipelight repository...${NC}"
   add-apt-repository ppa:pipelight/stable -y >> xupdate.log 2>&1 & spinner $!
 fi
+
 if [ "$INSTSPOTIFY" == "1" ]; then
-  gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 2>> xupdate.log
-  gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - >> xupdate.log 2>&1 
+  echo -e "${BL}     Spotify repository...${NC}"
+  gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv BBEBDCB318AD50EC6865090613B00F1FD2C19886 
+  gpg --export --armor BBEBDCB318AD50EC6865090613B00F1FD2C19886 | apt-key add - 
   echo "deb http://repository.spotify.com stable non-free"  > /etc/apt/sources.list.d/spotify.list
 fi
 
@@ -405,7 +437,6 @@ chmod 644 /etc/apt/apt.conf.d/10periodic
 # ------------------------------------------------------------------------------
 # Manage Laptop battery & overheating 
 
-LAPTOP=$(laptop-detect; echo -e  $?)
 if [ "$LAPTOP" == "0" ]; then
   xinstall tlp 
   xinstall tlp-rdw 
@@ -849,13 +880,9 @@ fi
 
 if [ "$INSTNUMIX" == "1" ]; then
   echo "   installing Numix theme"
-  xinstall numix-folders
-  xinstall numix-gtk-theme
-  xinstall numix-icon-theme
-  xinstall numix-icon-theme-circle 
-  xinstall numix-plank-theme
+  xinstall numix-*
   xfconf-query -c xsettings -p /Net/ThemeName -s "Numix"
-  xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
+  xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix Circle"
 fi
 
 # ------------------------------------------------------------------------------
