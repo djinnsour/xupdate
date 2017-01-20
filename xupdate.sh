@@ -782,7 +782,7 @@ echo -e "${GR}Installing selected extra applications...${NC}"
 if [ "$INSTPLANK" == "1" ]; then
 xinstall plank
 # add autostart
-cat <<EOF > /home/$XUSER/.config/autostart/plank.desktop
+cat <<EOF > "/home/$XUSER/.config/autostart/plank.desktop"
 [Desktop Entry]
 Name=Plank
 Exec=/usr/bin/plank
@@ -862,7 +862,7 @@ if [ "$ARCH" == "x86_64" ] && [ "$INSTKRITA" == "1" ]; then
   # add icon
   wget -qP /opt/krita http://www.wittamore.com/images/krita-icon.png & spinner $!
   # add desktop entry
-cat <<EOF > /usr/share/applications/krita.desktop
+cat <<EOF > "/usr/share/applications/krita.desktop"
 [Desktop Entry]
 Type=Application
 Name=Krita
@@ -877,10 +877,25 @@ fi
 # Numix
 
 if [ "$INSTNUMIX" == "1" ]; then
-  echo "   installing Numix theme"
-  xinstall numix-*
-  xfconf-query -c xsettings -p /Net/ThemeName -s "Numix"
-  xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix Circle"
+echo "   installing Numix theme"
+xinstall numix-*
+# we can't use xfconf-query as we are root
+cat <<EOF > "/home/$XUSER/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xsettings" version="1.0">
+  <property name="Net" type="empty">
+    <property name="ThemeName" type="string" value="Numix"/>
+    <property name="IconThemeName" type="string" value="Numix-Circle"/>
+  </property>
+</channel>
+EOF
+cat <<EOF > "/home/$XUSER/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfwm4" version="1.0">
+  <property name="theme" type="string" value="Numix"/>
+  </property>
+</channel>
+EOF
 fi
 
 # ------------------------------------------------------------------------------
@@ -942,7 +957,7 @@ else
 fi
 wget -q https://cdn-images-1.medium.com/max/360/1*v86tTomtFZIdqzMNpvwIZw.png -O /opt/franz/franz-icon.png 
 # add desktop entry
-cat <<EOF > /usr/share/applications/franz.desktop                                                                 
+cat <<EOF > "/usr/share/applications/franz.desktop"                                                                 
 [Desktop Entry]
 Type=Application
 Name=Franz
@@ -952,7 +967,7 @@ Icon=/opt/franz/franz-icon.png
 Categories=Network;Messaging;
 EOF
 # autostart
-cat <<EOF > /home/$XUSER/.config/autostart/franz.desktop                                                                 
+cat <<EOF > "/home/$XUSER/.config/autostart/franz.desktop"                                                                 
 [Desktop Entry]
 Name=Franz
 Exec=/opt/franz/Franz
