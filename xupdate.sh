@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# xupdate.sh version 0.8.2
-# ven. 20 janv. 2017 07:36:53 CET
+# xupdate.sh version 0.8.3
+# lun. 23 janv. 2017 11:50:08 CET
 #
 # POST INSTALLATION SCRIPT FOR XUBUNTU 16.04 LTS
 # CREDITS: Internet
@@ -265,6 +265,10 @@ mkdir -p "/home/$XUSER/.local/share/applications"
 
 echo -e "${GR}Adding repositories...${NC}"
 
+# Inkscape stable
+echo -e "${BL}     Inkscape repository...${NC}"
+sudo add-apt-repository ppa:inkscape.dev/stable
+
 # Libreoffice - latest version
 echo -e "${BL}     Libreoffice repository...${NC}"
 add-apt-repository ppa:libreoffice/ppa -y  >> xupdate.log 2>&1 & spinner $!
@@ -363,6 +367,7 @@ DropdownAlwaysShowTabs=FALSE
 FontName=DejaVu Sans Mono 10
 ShortcutsNoMnemonics=TRUE
 ShortcutsNoMenukey=TRUE
+ScrollingUnlimited=TRUE
 EOF
 
 # ------------------------------------------------------------------------------
@@ -878,7 +883,10 @@ fi
 
 if [ "$INSTNUMIX" == "1" ]; then
 echo "   installing Numix theme"
-xinstall numix-*
+xinstall numix-gtk-theme - Numix GTK Theme
+xinstall numix-icon-theme - Numix icon theme
+xinstall numix-icon-theme-circle - Numix Circle icons
+xinstall numix-folders - Numix Folders
 # we can't use xfconf-query as we are root
 cat <<EOF > "/home/$XUSER/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
 <?xml version="1.0" encoding="UTF-8"?>
