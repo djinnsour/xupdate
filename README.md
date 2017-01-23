@@ -22,6 +22,8 @@ HOWTO:
 
 # CHANGELOG
 
+- added ScrollingUnlimited=TRUE to Terminal config
+- removed numix-plymouth-theme (faulty package thanks deanpcmad)
 - syntax corrected with shellcheck
 - added conky
 - added cowsay (thanks to wertperch)
