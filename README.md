@@ -1,3 +1,5 @@
+This was forked from Captain Sensible's original.  I am removing some of the things I don't think are necessary, and adding a few that I think are necessary.  I will be creating two update scripts, one for desktop and one for Ubuntu server. All are intended for virtual machines running on either KVM or VMWare hosts.
+
 # xupdate
 
 A post installation script for fresh installs of Xubuntu 16.04 LTS
