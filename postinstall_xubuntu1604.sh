@@ -237,7 +237,7 @@ EOF
 # ------------------------------------------------------------------------------
 # Enable ctrl+alt+backspace
 
-sed -i -e "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /etc/default/keyboard
+sed -i "s/XKBOPTIONS=\x22\x22/XKBOPTIONS=\x22terminate:ctrl_alt_bksp\x22/g" /etc/default/keyboard
 
 # ------------------------------------------------------------------------------
 # VM Optimize
